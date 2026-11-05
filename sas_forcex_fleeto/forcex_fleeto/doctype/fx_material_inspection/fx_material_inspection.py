@@ -33,6 +33,10 @@ from sas_forcex_fleeto.forcex_fleeto.utils import business_rules, move_ticket, s
 
 class FXMaterialInspection(Document):
     def validate(self):
+        # Konnect invoice of the vehicle on the ticket (HD Ticket -> FX Vehicle Registry)
+        if not self.original_invoice and self.ticket:
+            vehicle = frappe.db.get_value("HD Ticket", self.ticket, "fx_vehicle")
+            self.original_invoice = frappe.db.get_value("FX Vehicle Registry", vehicle, "konnect_invoice_no") if vehicle else None
         if not self.settlement_action:
             self.settlement_action = warranty_rules.default_action(self.component_type, self.finding)
 
@@ -60,7 +64,7 @@ class FXMaterialInspection(Document):
         ticket = self.ticket
 
         if action in (A.SAME_RETURN, A.REPAIR_RETURN):
-            move_ticket(ticket, Status.READY_TO_DISPATCH, inspection=self.name)
+            move_ticket(ticket, Status.READY_TO_DISPATCH, fx_inspection=self.name)
 
         elif action == A.SUPPLIER_RMA:
             rma = frappe.get_doc({"doctype": "FX Supplier RMA", "ticket": ticket, "status": "Draft",
@@ -68,28 +72,27 @@ class FXMaterialInspection(Document):
                                   "dealer_invoiced_value": self.invoiced_value}).insert(ignore_mandatory=True)
             # Ticket stays "Under Inspection" until the RMA is actually sent
             # (FX Supplier RMA -> "Sent to Supplier" moves it to At Supplier).
-            move_ticket(ticket, Status.UNDER_INSPECTION, inspection=self.name, supplier_rma=rma.name)
+            move_ticket(ticket, Status.UNDER_INSPECTION, fx_inspection=self.name, fx_supplier_rma=rma.name)
 
         elif action == A.CREDIT_NOTE:
             cn = make_dealer_credit_note(ticket, self.credit_note_amount, remarks=f"MIR {self.name}: {self.finding}")
-            move_ticket(ticket, Status.CREDIT_NOTE_PENDING, inspection=self.name, credit_note=cn)
+            move_ticket(ticket, Status.CREDIT_NOTE_PENDING, fx_inspection=self.name, fx_credit_note=cn)
 
         elif action == A.REPLACE:
             self._register_replacement()
-            move_ticket(ticket, Status.READY_TO_DISPATCH, inspection=self.name)
+            move_ticket(ticket, Status.READY_TO_DISPATCH, fx_inspection=self.name)
 
         elif action == A.REJECT:
-            move_ticket(ticket, Status.REJECTED, inspection=self.name)
+            move_ticket(ticket, Status.REJECTED, fx_inspection=self.name)
 
     # ----------------------------------------------------------------------
     def _component_supplier(self):
-        """Supplier of the part, from the Item's default supplier if set up."""
-        item = frappe.db.get_value("FX Service Ticket", self.ticket, "physical_part_no")
-        return frappe.db.get_value("Item Default", {"parent": item}, "default_supplier") if item else None
+        """Supplier is picked on the RMA by the warranty team (no item master link yet)."""
+        return None
 
     def _register_replacement(self):
         """Non-reset rule: the new serial inherits the OLD serial's end date."""
-        vehicle = frappe.db.get_value("FX Service Ticket", self.ticket, "vehicle")
+        vehicle = frappe.db.get_value("HD Ticket", self.ticket, "fx_vehicle")
         reg = frappe.get_doc("FX Vehicle Registry", vehicle)
         old = next((c for c in reg.components if c.serial_no == self.serial_no), None)
         if not old or not old.warranty_end:

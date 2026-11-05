@@ -32,8 +32,8 @@ class TestConstantsSync(unittest.TestCase):
     def test_doctype_select_options_match_constants(self):
         """If a DocType JSON exists (after `bench export`), its Select options
         for status / component_type must equal the Python enums."""
-        enums = {"status": set(Status.values()), "component_type": set(ComponentType.values())}
-        for path in glob.glob(os.path.join(DOCTYPE_DIR, "fx_service_ticket", "fx_service_ticket.json")):
+        enums = {"component_type": set(ComponentType.values())}
+        for path in glob.glob(os.path.join(DOCTYPE_DIR, "fx_material_inspection", "fx_material_inspection.json")):
             with open(path) as f:
                 fields = {d["fieldname"]: d for d in json.load(f)["fields"]}
             for name, expected in enums.items():

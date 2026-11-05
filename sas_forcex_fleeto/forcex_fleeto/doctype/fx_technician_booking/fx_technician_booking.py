@@ -30,7 +30,7 @@ class FXTechnicianBooking(Document):
         before = self.get_doc_before_save()
         newly_assigned = self.status == "Assigned" and (not before or before.status != "Assigned")
         if newly_assigned and self.ticket:
-            ticket_status = frappe.db.get_value("FX Service Ticket", self.ticket, "status")
+            ticket_status = frappe.db.get_value("HD Ticket", self.ticket, "fx_stage")
             if ticket_status in (Status.TELE_TRIAGE, Status.VISIT_DONE_UNRESOLVED):
                 move_ticket(self.ticket, Status.TECH_ASSIGNED)
             if self.notify:

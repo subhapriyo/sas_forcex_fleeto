@@ -31,12 +31,12 @@ class FXSupplierRMA(Document):
             return  # only react to status *changes*
 
         if self.status == "Sent to Supplier":
-            move_ticket(self.ticket, Status.AT_SUPPLIER, supplier_rma=self.name)
+            move_ticket(self.ticket, Status.AT_SUPPLIER, fx_supplier_rma=self.name)
         elif self.status == "Repaired Pack Returned":
             move_ticket(self.ticket, Status.RECEIVED_FROM_SUPPLIER)
         elif self.status == "Supplier Credited":
             values = {}
             if self.auto_dealer_cn:
-                values["credit_note"] = make_dealer_credit_note(
+                values["fx_credit_note"] = make_dealer_credit_note(
                     self.ticket, self.dealer_credit, remarks=f"Paired with supplier CN {self.supplier_cn_ref}")
             move_ticket(self.ticket, Status.CREDIT_NOTE_PENDING, **values)

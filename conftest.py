@@ -8,5 +8,6 @@ _dev/ holds local helper scripts (git-excluded); never collect them.
 
 collect_ignore_glob = [
     "sas_forcex_fleeto/forcex_fleeto/doctype/*/test_*.py",
+    "sas_forcex_fleeto/forcex_fleeto/integrations/test_*.py",
     "_dev/*",
 ]

@@ -42,8 +42,10 @@ def send(mobile: str, message: str, ref_doctype: str, ref_name: str):
 def send_booking_alert(booking: str):
     """Screen 3 dispatch alert to technician and dealer."""
     b = frappe.get_doc("FX Technician Booking", booking)
-    t = frappe.db.get_value("FX Service Ticket", b.ticket,
-                            ["customer_name", "mobile", "damage_details", "business_partner"], as_dict=True) or {}
+    t = frappe.db.get_value("HD Ticket", b.ticket, ["subject", "fx_vehicle"], as_dict=True) or frappe._dict()
+    v = frappe.db.get_value("FX Vehicle Registry", t.get("fx_vehicle"), ["customer_name", "mobile"], as_dict=True) or {}
+    t.update(v)
+    t["damage_details"] = t.get("subject")
     tech_mobile = frappe.db.get_value("Employee", b.technician, "cell_number")
     msg = (f"Job {b.ticket} on {b.booking_date} {b.from_time}-{b.to_time}. "
            f"Customer {t.get('customer_name')} ({t.get('mobile')}). Issue: {t.get('damage_details') or '-'}")

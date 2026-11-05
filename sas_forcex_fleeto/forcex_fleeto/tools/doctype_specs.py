@@ -23,16 +23,13 @@ from ..services.constants import (
     AnswerType,
     CallOutcome,
     CallStatus,
-    ClaimFor,
     ComponentType,
     InspectionFinding,
     SettlementAction,
-    Status,
-    TicketType,
 )
 
 MODULE = "ForceX FLEETO"
-MODIFIED = "2026-11-05 16:00:00.000000"   # bump when you change a spec, or migrate skips it
+MODIFIED = "2026-11-05 17:00:00.000000"   # bump when you change a spec, or migrate skips it
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -165,67 +162,11 @@ SPECS["FX Triage Check"] = dict(istable=1, fields=[
     f("reading", "Data", in_list_view=1),
 ])
 
-SPECS["FX Service Ticket"] = dict(
-    autoname="naming_series:", track_changes=1, title_field="customer_name",
-    search_fields="customer_name,mobile,component_serial,chassis_no",
-    fields=[
-        f("naming_series", "Select", "Series", options="FLT-SRV-.YYYY.-.#####", default="FLT-SRV-.YYYY.-.#####"),
-        f("ticket_type", "Select", options=opts(TicketType.values()), reqd=1, in_list_view=1),
-        f("claim_for", "Select", options=opts([""] + ClaimFor.values()), depends_on="eval:doc.ticket_type=='Warranty'"),
-        f("status", "Select", options=opts(Status.values()), default=Status.DRAFT, in_list_view=1,
-          in_standard_filter=1, read_only=1),
-        col(1),
-        f("business_partner", "Link", "Claim From (Dealer/Distributor)", options="Customer"),
-        f("distributor", "Link", "Distributor (auto)", options="Customer", read_only=1),
-        sec("1. Lookup & Vehicle Identification"),
-        f("search_by", "Select", options="Serial Number\nInvoice Number\nChassis No\nCustomer Mobile", default="Serial Number"),
-        f("lookup_query", "Data"),
-        f("vehicle", "Link", options="FX Vehicle Registry"),
-        col(2),
-        f("customer_name", "Data", fetch_from="vehicle.customer_name", in_list_view=1),
-        f("mobile", "Data", fetch_from="vehicle.mobile"),
-        f("chassis_no", "Data", fetch_from="vehicle.chassis_no", read_only=1),
-        f("invoice_no", "Data", fetch_from="vehicle.konnect_invoice_no", read_only=1),
-        f("sale_date", "Date", fetch_from="vehicle.invoice_date", read_only=1),
-        sec("2. Claim & Component"),
-        f("component_type", "Select", options=opts([""] + ComponentType.values())),
-        f("component_serial", "Data", search_index=1),
-        f("physical_part_no", "Data"),
-        f("system_match", "Check", "Verified against Konnect", read_only=1),
-        f("override_reason", "Small Text", "Part override reason", depends_on="eval:!doc.system_match && doc.component_serial"),
-        col(3),
-        f("warranty_status", "Data", read_only=1, in_list_view=1),
-        f("warranty_expires_on", "Date", read_only=1),
-        f("odometer_km", "Int"),
-        f("goodwill_requested", "Check"),
-        f("goodwill_approved_by", "Link", options="User", read_only=1),
-        f("damage_details", "Small Text"),
-        sec("3. Evidence (mandatory gate)"),
-        f("customer_invoice", "Attach"),
-        f("distributor_invoice", "Attach"),
-        f("tally_invoice", "Attach"),
-        col(4),
-        f("component_photo", "Attach Image"),
-        f("odometer_photo", "Attach Image"),
-        f("video_clip", "Attach"),
-        sec("Tele-Calling Triage", collapsible=1, depends_on="eval:doc.ticket_type=='Service'"),
-        f("call_channel", "Select", options="Phone Call\nWhatsApp Video Call\nDealer Conference"),
-        f("triage_checks", "Table", options="FX Triage Check"),
-        f("triage_outcome", "Select",
-          options="\nResolved Remotely\nEscalate to Field Technician\nSend Component to Factory"),
-        sec("Settlement", collapsible=1),
-        f("inspection", "Link", options="FX Material Inspection", read_only=1),
-        f("supplier_rma", "Link", options="FX Supplier RMA", read_only=1),
-        f("credit_note", "Link", options="Sales Invoice", read_only=1),
-        f("delivery_note", "Link", "FOC / Warranty Challan", options="Delivery Note", read_only=1),
-        f("advance_warranty_claim_invoice", "Data"),
-    ],
-    permissions=perms(write=SVC_DESK + HEADS + ["FX Business Partner"], read=["FX ASM", "FX RSM", "FX Sales Head", "FX Sales Team"]),
-)
+# FX Service Ticket retired 05-Nov-2026: FLEETO tickets are HD Tickets (see integrations/helpdesk.py)
 
 # ---------------------------------------------------------------- field service
 SPECS["FX Technician Booking"] = dict(autoname="hash", fields=[
-    f("ticket", "Link", options="FX Service Ticket", in_list_view=1),
+    f("ticket", "Link", options="HD Ticket", in_list_view=1),
     f("technician", "Link", options="Employee", reqd=1, in_list_view=1),
     f("booking_date", "Date", reqd=1, in_list_view=1),
     f("from_time", "Time", reqd=1),
@@ -244,7 +185,7 @@ SPECS["FX Job Card Part"] = dict(istable=1, fields=[
 
 SPECS["FX Job Card"] = dict(autoname="hash", is_submittable=1, fields=[
     f("booking", "Link", options="FX Technician Booking", reqd=1),
-    f("ticket", "Link", options="FX Service Ticket", fetch_from="booking.ticket", read_only=1, in_list_view=1),
+    f("ticket", "Link", options="HD Ticket", fetch_from="booking.ticket", read_only=1, in_list_view=1),
     f("technician", "Link", options="Employee", fetch_from="booking.technician", read_only=1),
     f("arrival_time", "Datetime"), f("arrival_lat", "Float", precision="6"), f("arrival_lng", "Float", precision="6"),
     f("departure_time", "Datetime"),
@@ -262,7 +203,7 @@ SPECS["FX Job Card"] = dict(autoname="hash", is_submittable=1, fields=[
 # ---------------------------------------------------------------- factory
 SPECS["FX Material Receipt"] = dict(autoname="hash", fields=[
     f("receipt_date", "Date", reqd=1, default="Today", in_list_view=1),
-    f("ticket", "Link", options="FX Service Ticket", description="May be tagged later (FRD note 2/3)", in_list_view=1),
+    f("ticket", "Link", options="HD Ticket", description="May be tagged later (FRD note 2/3)", in_list_view=1),
     f("received_from", "Link", options="Customer"),
     f("component_type", "Select", options=opts(ComponentType.values()), reqd=1),
     f("serial_no", "Data", reqd=1, in_list_view=1),
@@ -273,11 +214,11 @@ SPECS["FX Material Inspection"] = dict(
     autoname="naming_series:", is_submittable=1, track_changes=1,
     fields=[
         f("naming_series", "Select", options="MIR-.YYYY.-.####", default="MIR-.YYYY.-.####"),
-        f("ticket", "Link", options="FX Service Ticket", reqd=1, in_list_view=1),
+        f("ticket", "Link", options="HD Ticket", reqd=1, in_list_view=1),
         f("material_receipt", "Link", options="FX Material Receipt"),
-        f("component_type", "Select", options=opts(ComponentType.values()), fetch_from="ticket.component_type", reqd=1),
-        f("serial_no", "Data", fetch_from="ticket.component_serial"),
-        f("original_invoice", "Data", fetch_from="ticket.invoice_no"),
+        f("component_type", "Select", options=opts(ComponentType.values()), fetch_from="ticket.fx_component_type", reqd=1),
+        f("serial_no", "Data", fetch_from="ticket.fx_component_serial"),
+        f("original_invoice", "Data", description="Konnect invoice of the vehicle (set automatically)"),
         f("inspector", "Link", options="User", default="__user"),
         col(1),
         f("finding", "Select", options=opts(InspectionFinding.values()), reqd=1, in_list_view=1),
@@ -296,9 +237,9 @@ SPECS["FX Material Inspection"] = dict(
 
 SPECS["FX Supplier RMA"] = dict(autoname="naming_series:", track_changes=1, fields=[
     f("naming_series", "Select", options="RMA-SUP-.YYYY.-.###", default="RMA-SUP-.YYYY.-.###"),
-    f("ticket", "Link", options="FX Service Ticket", reqd=1, in_list_view=1),
+    f("ticket", "Link", options="HD Ticket", reqd=1, in_list_view=1),
     f("supplier", "Link", options="Supplier", reqd=1, in_list_view=1),
-    f("component_serial", "Data", fetch_from="ticket.component_serial"),
+    f("component_serial", "Data", fetch_from="ticket.fx_component_serial"),
     f("status", "Select", options="Draft\nSent to Supplier\nSupplier Acknowledged\nRepaired Pack Returned\nSupplier Credited\nClosed",
       default="Draft", in_list_view=1),
     f("courier", "Data"), f("awb_no", "Data", "AWB No"),

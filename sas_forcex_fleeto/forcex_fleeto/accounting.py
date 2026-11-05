@@ -23,14 +23,15 @@ def make_dealer_credit_note(ticket: str, amount: float, remarks: str = "") -> st
     ERPNext v16 accepts a credit note without return_against — verify on your
     site with a test company before go-live.)
     """
-    t = frappe.db.get_value("FX Service Ticket", ticket, ["business_partner", "invoice_no"], as_dict=True)
+    t = frappe.db.get_value("HD Ticket", ticket, ["fx_business_partner", "fx_vehicle"], as_dict=True)
     item = settings().credit_note_item
-    if not (t and t.business_partner and item):
-        frappe.throw(_("Set Claim From on the ticket and Credit Note Item in FX Service Settings"))
+    if not (t and t.fx_business_partner and item):
+        frappe.throw(_("Set Dealer / Distributor on the ticket and Credit Note Item in FX Service Settings"))
+    t.invoice_no = frappe.db.get_value("FX Vehicle Registry", t.fx_vehicle, "konnect_invoice_no") if t.fx_vehicle else ""
     _check_gst_ready(item)
 
     si = frappe.new_doc("Sales Invoice")
-    si.customer = t.business_partner
+    si.customer = t.fx_business_partner
     si.is_return = 1
     si.update_stock = 0
     si.fx_service_ticket = ticket
@@ -54,7 +55,7 @@ def _check_gst_ready(item: str) -> None:
 
 def make_foc_challan(ticket: str, item_code: str, serial_no: str | None = None) -> str:
     """Zero-value Delivery Note used as the warranty / FOC challan."""
-    customer = frappe.db.get_value("FX Service Ticket", ticket, "business_partner")
+    customer = frappe.db.get_value("HD Ticket", ticket, "fx_business_partner")
     dn = frappe.new_doc("Delivery Note")
     dn.customer = customer
     dn.fx_service_ticket = ticket

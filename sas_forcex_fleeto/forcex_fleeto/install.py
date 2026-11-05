@@ -23,11 +23,11 @@ CUSTOM_FIELDS = {
     ],
     "Sales Invoice": [
         {"fieldname": "fx_service_ticket", "label": "Service Ticket", "fieldtype": "Link",
-         "options": "FX Service Ticket", "insert_after": "customer", "read_only": 1},
+         "options": "HD Ticket", "insert_after": "customer", "read_only": 1},
     ],
     "Delivery Note": [
         {"fieldname": "fx_service_ticket", "label": "Service Ticket", "fieldtype": "Link",
-         "options": "FX Service Ticket", "insert_after": "customer", "read_only": 1},
+         "options": "HD Ticket", "insert_after": "customer", "read_only": 1},
     ],
 }
 
@@ -45,6 +45,9 @@ before_migrate = ensure_roles
 
 def after_install():
     create_custom_fields(CUSTOM_FIELDS, update=True)
+    from .integrations import helpdesk
+
+    helpdesk.setup()  # FLEETO tickets live in ForceX Helpdesk (HD Ticket)
 
 
 after_migrate = after_install

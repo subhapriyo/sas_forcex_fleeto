@@ -293,3 +293,10 @@ scheduler_events = {
 	# 06:15 IST daily, before the Feedback Desk starts calling
 	"cron": {"15 6 * * *": ["sas_forcex_fleeto.forcex_fleeto.tasks.build_feedback_queue"]},
 }
+
+# ForceX Helpdesk: FLEETO tickets are HD Tickets (integrations/helpdesk.py).
+# Helpdesk owns HD Ticket.status (conversation); we own fx_stage (process).
+doc_events = {
+	"HD Ticket": {"validate": "sas_forcex_fleeto.forcex_fleeto.integrations.helpdesk.validate_hd_ticket"},
+}
+doctype_js = {"HD Ticket": "public/js/hd_ticket_fx.js"}

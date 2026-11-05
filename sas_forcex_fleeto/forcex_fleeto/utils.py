@@ -71,14 +71,16 @@ def as_time(value) -> dt.time | None:
     return dt.time.fromisoformat(str(value))
 
 
-def move_ticket(ticket: str, new_status: str, **values) -> None:
-    """Change a ticket's status from another document (MIR, Job Card ...).
+def move_ticket(ticket: str, new_stage: str, **values) -> None:
+    """Move a FLEETO HD Ticket to a new process stage from another document (MIR, Job Card ...).
 
-    Goes through the normal save() so the transition guard still runs.
+    Sets `fx_stage` (never Helpdesk's own `status`) and goes through save(),
+    so the stage guard in integrations.helpdesk.validate_hd_ticket still runs.
+    `values` are fx_* fields to set at the same time (e.g. fx_inspection=...).
     """
-    doc = frappe.get_doc("FX Service Ticket", ticket)
+    doc = frappe.get_doc("HD Ticket", ticket)
     doc.update(values)
-    doc.status = new_status
+    doc.fx_stage = new_stage
     doc.flags.ignore_permissions = True  # caller already passed its own permission check
     doc.save()
 

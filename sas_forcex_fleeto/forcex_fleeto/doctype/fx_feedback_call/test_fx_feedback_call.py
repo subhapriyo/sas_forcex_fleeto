@@ -37,6 +37,19 @@ def vehicle(chassis, inv, days_ago):
                     "invoice_date": add_days(nowdate(), -days_ago)}).insert()
 
 
+def build_queue_isolated():
+    """Build the queue, then set aside every open call that is not this test's.
+
+    The FIFO desk always serves the oldest open call on the SITE; on a dev site
+    with demo or real Konnect data that is never a test row. Parking the others
+    happens inside the test transaction, so Frappe's class rollback restores them.
+    """
+    n = tasks.build_feedback_queue()
+    frappe.db.sql("""update `tabFX Feedback Call` set status='Customer Declined'
+                     where invoice_no not like 'INV-FB-%%' and status in ('Queued', 'Call Back Later')""")
+    return n
+
+
 class TestFeedbackDesk(IntegrationTestCase):
     def setUp(self):
         # Rollback is per class, so clear calls left by the previous test.
@@ -47,15 +60,15 @@ class TestFeedbackDesk(IntegrationTestCase):
         vehicle("MD9FBTEST00000003", "INV-FB-NOTDUE", 3)
 
     def test_queue_is_built_once_and_fifo(self):
-        tasks.build_feedback_queue()
-        self.assertEqual(tasks.build_feedback_queue(), 0)  # idempotent
+        build_queue_isolated()
+        self.assertEqual(build_queue_isolated(), 0)  # idempotent
         self.assertFalse(frappe.db.exists("FX Feedback Call", {"invoice_no": "INV-FB-NOTDUE"}))
         first = frappe.get_doc("FX Feedback Call", open_next_call())
         self.assertEqual(first.invoice_no, "INV-FB-OLD")
         self.assertEqual(len(first.answers), 2)
 
     def test_connected_requires_mandatory_answers(self):
-        tasks.build_feedback_queue()
+        build_queue_isolated()
         call = frappe.get_doc("FX Feedback Call", open_next_call())
         with self.assertRaises(frappe.ValidationError):
             call.submit_outcome("Connected", json.dumps({"1": 5}))
@@ -65,7 +78,7 @@ class TestFeedbackDesk(IntegrationTestCase):
         self.assertEqual(call.is_detractor, 1)
 
     def test_unreachable_after_max_attempts(self):
-        tasks.build_feedback_queue()
+        build_queue_isolated()
         call = frappe.get_doc("FX Feedback Call", open_next_call())
         call.submit_outcome("Not Reachable")
         self.assertEqual(call.status, "Queued")

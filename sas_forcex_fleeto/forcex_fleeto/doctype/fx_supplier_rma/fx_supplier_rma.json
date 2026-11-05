@@ -4,7 +4,7 @@
  "module": "ForceX FLEETO",
  "custom": 0,
  "engine": "InnoDB",
- "modified": "2026-11-05 16:00:00.000000",
+ "modified": "2026-11-05 17:00:00.000000",
  "owner": "Administrator",
  "fields": [
   {
@@ -19,7 +19,7 @@
    "fieldname": "ticket",
    "fieldtype": "Link",
    "label": "Ticket",
-   "options": "FX Service Ticket",
+   "options": "HD Ticket",
    "reqd": 1,
    "in_list_view": 1,
    "idx": 2
@@ -37,7 +37,7 @@
    "fieldname": "component_serial",
    "fieldtype": "Data",
    "label": "Component Serial",
-   "fetch_from": "ticket.component_serial",
+   "fetch_from": "ticket.fx_component_serial",
    "idx": 4
   },
   {

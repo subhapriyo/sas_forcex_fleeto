@@ -4,7 +4,7 @@
  "module": "ForceX FLEETO",
  "custom": 0,
  "engine": "InnoDB",
- "modified": "2026-11-05 16:00:00.000000",
+ "modified": "2026-11-05 17:00:00.000000",
  "owner": "Administrator",
  "fields": [
   {
@@ -19,7 +19,7 @@
    "fieldname": "ticket",
    "fieldtype": "Link",
    "label": "Ticket",
-   "options": "FX Service Ticket",
+   "options": "HD Ticket",
    "reqd": 1,
    "in_list_view": 1,
    "idx": 2
@@ -36,7 +36,7 @@
    "fieldtype": "Select",
    "label": "Component Type",
    "options": "Lead-Acid Battery\nLithium-Ion Battery\nLithium Charger\nLead Charger\nMotor\nController\nChassis\nIOT Device\nOther",
-   "fetch_from": "ticket.component_type",
+   "fetch_from": "ticket.fx_component_type",
    "reqd": 1,
    "idx": 4
   },
@@ -44,14 +44,14 @@
    "fieldname": "serial_no",
    "fieldtype": "Data",
    "label": "Serial No",
-   "fetch_from": "ticket.component_serial",
+   "fetch_from": "ticket.fx_component_serial",
    "idx": 5
   },
   {
    "fieldname": "original_invoice",
    "fieldtype": "Data",
    "label": "Original Invoice",
-   "fetch_from": "ticket.invoice_no",
+   "description": "Konnect invoice of the vehicle (set automatically)",
    "idx": 6
   },
   {

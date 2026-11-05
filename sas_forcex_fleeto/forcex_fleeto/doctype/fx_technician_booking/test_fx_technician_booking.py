@@ -10,7 +10,7 @@ from frappe.utils import nowdate
 # them before the tests start (frappe/tests/classes/integration_test_case.py). On a
 # dev site that clashes with real masters (e.g. Fiscal Year), so we opt out and
 # create only the few records each test needs.
-IGNORE_TEST_RECORD_DEPENDENCIES = ["Employee", "FX Service Ticket"]
+IGNORE_TEST_RECORD_DEPENDENCIES = ["Employee", "HD Ticket"]
 
 def site_company() -> str | None:
     """Employees need a Company. A fresh site may not have one yet."""

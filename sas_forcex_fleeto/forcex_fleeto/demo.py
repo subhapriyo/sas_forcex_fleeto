@@ -11,7 +11,7 @@ Safety
     * Idempotent: seed() twice changes nothing the second time.
     * Every demo record is recognisable, so clear() never touches real data:
         vehicles   chassis starts with "MD9DEM"
-        tickets    linked to a demo vehicle
+        tickets    HD Tickets with fx_demo_key set
         employees  "Demo Tech ..."
         supplier   "Demo Cell Energy Ltd"
         dealers    created only if missing; real Konnect dealers are reused and never deleted
@@ -67,7 +67,7 @@ def seed() -> dict:
     techs = _technicians()
     out["technicians"] = len(techs)
     tickets = _tickets(files)
-    out["tickets"] = {k: frappe.db.get_value("FX Service Ticket", v, "status") for k, v in tickets.items()}
+    out["tickets"] = {k: frappe.db.get_value("HD Ticket", v, "fx_stage") for k, v in tickets.items()}
     out["calendar"] = _calendar(techs, tickets)
     out["inspection"] = _inspection(tickets)
     out["supplier_rma"] = _supplier_rma(tickets)
@@ -82,7 +82,7 @@ def clear() -> dict:
     _guard()
     frappe.set_user("Administrator")
     vehicles = frappe.get_all("FX Vehicle Registry", filters={"name": ["like", f"{CHASSIS_PREFIX}%"]}, pluck="name")
-    tickets = frappe.get_all("FX Service Ticket", filters={"vehicle": ["in", vehicles or [""]]}, pluck="name")
+    tickets = frappe.get_all("HD Ticket", filters={"fx_demo_key": ["is", "set"]}, pluck="name")
     techs = frappe.get_all("Employee", filters={"employee_name": ["like", f"{TECH_PREFIX}%"]}, pluck="name")
     counts = {}
 
@@ -100,7 +100,7 @@ def clear() -> dict:
     drop("FX Material Inspection", frappe.get_all("FX Material Inspection", filters={"ticket": ["in", tickets or [""]]}, pluck="name"))
     drop("FX Supplier RMA", frappe.get_all("FX Supplier RMA", filters={"ticket": ["in", tickets or [""]]}, pluck="name"))
     drop("FX Feedback Call", frappe.get_all("FX Feedback Call", filters={"vehicle": ["in", vehicles or [""]]}, pluck="name"))
-    drop("FX Service Ticket", tickets)
+    drop("HD Ticket", tickets)
     drop("FX Vehicle Registry", vehicles)
     drop("Employee", techs)
     drop("Supplier", frappe.get_all("Supplier", filters={"name": SUPPLIER}, pluck="name"))
@@ -270,19 +270,34 @@ def _technicians() -> dict:
     return techs
 
 
+# demo-script keys -> HD Ticket fields (keeps the scenario table below readable)
+_FIELD = {"vehicle": "fx_vehicle", "business_partner": "fx_business_partner", "component_serial": "fx_component_serial",
+          "component_type": "fx_component_type", "override_reason": "fx_override_reason", "claim_for": "fx_claim_for",
+          "goodwill_requested": "fx_goodwill_requested", "customer_invoice": "fx_customer_invoice",
+          "component_photo": "fx_component_photo", "call_channel": "fx_call_channel",
+          "triage_outcome": "fx_triage_outcome", "triage_checks": "fx_triage_checks"}
+
+
 def _ticket(key: str, values: dict, moves: list[str] | None = None, receive=False) -> str:
-    """Create a ticket once (keyed by vehicle + a demo tag in damage_details) and walk it
-    through the REAL status rules, so every demo state is one the system allows."""
-    tag = f"[demo:{key}]"
-    name = frappe.db.get_value("FX Service Ticket", {"damage_details": ["like", f"%{tag}%"]})
+    """Create a FLEETO HD Ticket once (keyed by fx_demo_key) and walk it through the
+    REAL stage rules, so every demo state is one the system allows."""
+    from sas_forcex_fleeto.forcex_fleeto.integrations import helpdesk
+
+    name = frappe.db.get_value("HD Ticket", {"fx_demo_key": key})
     if name:
         return name
-    doc = frappe.get_doc({"doctype": "FX Service Ticket", **values,
-                          "damage_details": f"{values.get('damage_details', '')} {tag}".strip()}).insert()
-    for status in moves or []:
-        doc.set_status(status)
+    v = dict(values)
+    subject = v.pop("damage_details", "FLEETO ticket")
+    code = frappe.db.get_value("Customer", v.get("business_partner"), "fx_konnect_party_code") or "dealer"
+    doc = frappe.get_doc({
+        "doctype": "HD Ticket", "subject": subject, "description": f"<p>{subject}</p>",
+        "raised_by": f"{code.lower()}@dealers.demo.fleeto", "fx_demo_key": key,
+        **{_FIELD.get(k, k): val for k, val in v.items()},
+    }).insert(ignore_permissions=True)
+    for stage in moves or []:
+        helpdesk.set_stage(doc.name, stage)
     if receive:
-        doc.receive_material()
+        helpdesk.receive_material(doc.name)
     return doc.name
 
 
@@ -364,7 +379,7 @@ def _inspection(tickets: dict) -> str | None:
         # component_type passed explicitly: it is mandatory and I'm not certain fetch_from
         # fills it before Frappe's mandatory check on insert.
         name = frappe.get_doc({"doctype": "FX Material Inspection", "ticket": t, "finding": "Irreparable",
-                               "component_type": frappe.db.get_value("FX Service Ticket", t, "component_type"),
+                               "component_type": frappe.db.get_value("HD Ticket", t, "fx_component_type"),
                                "invoiced_value": 6500, "scrap_tag": "PCB-HAZ-DEMO-0001",
                                "recycler_batch": "Demo Smelters"}).insert().name
     return name
