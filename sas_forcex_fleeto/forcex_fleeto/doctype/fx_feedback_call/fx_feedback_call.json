@@ -1,0 +1,178 @@
+{
+ "doctype": "DocType",
+ "name": "FX Feedback Call",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-05 10:00:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "invoice_no",
+   "fieldtype": "Data",
+   "label": "Invoice No",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "idx": 1
+  },
+  {
+   "fieldname": "invoice_date",
+   "fieldtype": "Date",
+   "label": "Invoice Date",
+   "reqd": 1,
+   "in_list_view": 1,
+   "search_index": 1,
+   "idx": 2
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "label": "Vehicle",
+   "options": "FX Vehicle Registry",
+   "idx": 3
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "fetch_from": "vehicle.customer_name",
+   "in_list_view": 1,
+   "idx": 4
+  },
+  {
+   "fieldname": "mobile",
+   "fieldtype": "Data",
+   "label": "Mobile",
+   "fetch_from": "vehicle.mobile",
+   "idx": 5
+  },
+  {
+   "fieldname": "whatsapp",
+   "fieldtype": "Data",
+   "label": "Whatsapp",
+   "fetch_from": "vehicle.whatsapp",
+   "idx": 6
+  },
+  {
+   "fieldname": "col_1",
+   "fieldtype": "Column Break",
+   "label": "Col 1",
+   "idx": 7
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Queued\nCall Back Later\nCompleted\nUnreachable\nCustomer Declined",
+   "default": "Queued",
+   "in_list_view": 1,
+   "search_index": 1,
+   "idx": 8
+  },
+  {
+   "fieldname": "attempts",
+   "fieldtype": "Int",
+   "label": "Attempts",
+   "read_only": 1,
+   "idx": 9
+  },
+  {
+   "fieldname": "hold_until",
+   "fieldtype": "Datetime",
+   "label": "Hold Until",
+   "idx": 10
+  },
+  {
+   "fieldname": "claimed_by",
+   "fieldtype": "Link",
+   "label": "Claimed By",
+   "options": "User",
+   "read_only": 1,
+   "idx": 11
+  },
+  {
+   "fieldname": "questionnaire",
+   "fieldtype": "Link",
+   "label": "Questionnaire",
+   "options": "FX Feedback Questionnaire",
+   "read_only": 1,
+   "idx": 12
+  },
+  {
+   "fieldname": "sec_call",
+   "fieldtype": "Section Break",
+   "label": "Call",
+   "idx": 13
+  },
+  {
+   "fieldname": "call_outcome",
+   "fieldtype": "Select",
+   "label": "Call Outcome",
+   "options": "\nConnected\nNot Reachable\nCall Back Later\nCustomer Declined",
+   "idx": 14
+  },
+  {
+   "fieldname": "answers",
+   "fieldtype": "Table",
+   "label": "Answers",
+   "options": "FX Feedback Answer",
+   "idx": 15
+  },
+  {
+   "fieldname": "is_detractor",
+   "fieldtype": "Check",
+   "label": "Is Detractor",
+   "read_only": 1,
+   "idx": 16
+  },
+  {
+   "fieldname": "whatsapp_sent",
+   "fieldtype": "Check",
+   "label": "Whatsapp Sent",
+   "read_only": 1,
+   "idx": 17
+  },
+  {
+   "fieldname": "completed_on",
+   "fieldtype": "Datetime",
+   "label": "Completed On",
+   "read_only": 1,
+   "idx": 18
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 0,
+   "cancel": 0,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "FX CRM",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Warranty Service Head",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Operations Head",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "autoname": "hash",
+ "track_changes": 1,
+ "sort_field": "invoice_date",
+ "sort_order": "ASC"
+}

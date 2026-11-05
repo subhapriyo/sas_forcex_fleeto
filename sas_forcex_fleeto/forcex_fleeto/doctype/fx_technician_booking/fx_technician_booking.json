@@ -1,0 +1,137 @@
+{
+ "doctype": "DocType",
+ "name": "FX Technician Booking",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-05 10:00:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "ticket",
+   "fieldtype": "Link",
+   "label": "Ticket",
+   "options": "FX Service Ticket",
+   "in_list_view": 1,
+   "idx": 1
+  },
+  {
+   "fieldname": "technician",
+   "fieldtype": "Link",
+   "label": "Technician",
+   "options": "Employee",
+   "reqd": 1,
+   "in_list_view": 1,
+   "idx": 2
+  },
+  {
+   "fieldname": "booking_date",
+   "fieldtype": "Date",
+   "label": "Booking Date",
+   "reqd": 1,
+   "in_list_view": 1,
+   "idx": 3
+  },
+  {
+   "fieldname": "from_time",
+   "fieldtype": "Time",
+   "label": "From Time",
+   "reqd": 1,
+   "idx": 4
+  },
+  {
+   "fieldname": "to_time",
+   "fieldtype": "Time",
+   "label": "To Time",
+   "reqd": 1,
+   "idx": 5
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Assigned\nIn Progress\nDone\nCancelled\nBlocked",
+   "default": "Assigned",
+   "in_list_view": 1,
+   "idx": 6
+  },
+  {
+   "fieldname": "col_1",
+   "fieldtype": "Column Break",
+   "label": "Col 1",
+   "idx": 7
+  },
+  {
+   "fieldname": "zone",
+   "fieldtype": "Data",
+   "label": "Zone",
+   "idx": 8
+  },
+  {
+   "fieldname": "skillset",
+   "fieldtype": "Data",
+   "label": "Skillset",
+   "idx": 9
+  },
+  {
+   "fieldname": "vehicle_tag",
+   "fieldtype": "Data",
+   "label": "Dispatch Vehicle Tag",
+   "idx": 10
+  },
+  {
+   "fieldname": "notify",
+   "fieldtype": "Check",
+   "label": "Send WhatsApp/SMS to tech & dealer",
+   "default": "1",
+   "idx": 11
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 0,
+   "cancel": 0,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "FX Technical Coordinator",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Coordinator",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Warranty Service Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Operations Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX CRM",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "autoname": "hash"
+}

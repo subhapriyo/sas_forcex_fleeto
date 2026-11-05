@@ -1,0 +1,50 @@
+{
+ "doctype": "DocType",
+ "name": "FX Feedback Answer",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-05 10:00:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "question_idx",
+   "fieldtype": "Int",
+   "label": "Question Idx",
+   "read_only": 1,
+   "in_list_view": 1,
+   "idx": 1
+  },
+  {
+   "fieldname": "question",
+   "fieldtype": "Data",
+   "label": "Question",
+   "read_only": 1,
+   "in_list_view": 1,
+   "idx": 2
+  },
+  {
+   "fieldname": "answer_type",
+   "fieldtype": "Data",
+   "label": "Answer Type",
+   "read_only": 1,
+   "idx": 3
+  },
+  {
+   "fieldname": "mandatory",
+   "fieldtype": "Check",
+   "label": "Mandatory",
+   "read_only": 1,
+   "idx": 4
+  },
+  {
+   "fieldname": "answer",
+   "fieldtype": "Data",
+   "label": "Answer",
+   "in_list_view": 1,
+   "idx": 5
+  }
+ ],
+ "permissions": [],
+ "istable": 1
+}

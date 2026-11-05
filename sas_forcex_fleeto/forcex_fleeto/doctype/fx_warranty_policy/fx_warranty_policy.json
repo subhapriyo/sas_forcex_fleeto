@@ -1,0 +1,45 @@
+{
+ "doctype": "DocType",
+ "name": "FX Warranty Policy",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-05 10:00:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "component_type",
+   "fieldtype": "Select",
+   "label": "Component Type",
+   "options": "Lead-Acid Battery\nLithium-Ion Battery\nLithium Charger\nLead Charger\nMotor\nController\nChassis\nIOT Device\nOther",
+   "reqd": 1,
+   "in_list_view": 1,
+   "idx": 1
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model",
+   "description": "Blank = all models",
+   "in_list_view": 1,
+   "idx": 2
+  },
+  {
+   "fieldname": "months",
+   "fieldtype": "Int",
+   "label": "Months",
+   "reqd": 1,
+   "in_list_view": 1,
+   "idx": 3
+  },
+  {
+   "fieldname": "km_limit",
+   "fieldtype": "Int",
+   "label": "Km Limit",
+   "in_list_view": 1,
+   "idx": 4
+  }
+ ],
+ "permissions": [],
+ "istable": 1
+}

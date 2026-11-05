@@ -1,0 +1,51 @@
+{
+ "doctype": "DocType",
+ "name": "FX Feedback Question",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-05 10:00:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "question",
+   "fieldtype": "Data",
+   "label": "Question",
+   "reqd": 1,
+   "in_list_view": 1,
+   "idx": 1
+  },
+  {
+   "fieldname": "answer_type",
+   "fieldtype": "Select",
+   "label": "Answer Type",
+   "options": "Star rating (1-5)\nYes / No / Maybe\nYes / No\nFree text",
+   "reqd": 1,
+   "in_list_view": 1,
+   "idx": 2
+  },
+  {
+   "fieldname": "mandatory",
+   "fieldtype": "Check",
+   "label": "Mandatory",
+   "in_list_view": 1,
+   "idx": 3
+  },
+  {
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "label": "Active",
+   "default": "1",
+   "in_list_view": 1,
+   "idx": 4
+  },
+  {
+   "fieldname": "is_recommend_question",
+   "fieldtype": "Check",
+   "label": "Counts for detractor alert",
+   "idx": 5
+  }
+ ],
+ "permissions": [],
+ "istable": 1
+}

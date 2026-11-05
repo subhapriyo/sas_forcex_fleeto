@@ -1,0 +1,216 @@
+{
+ "doctype": "DocType",
+ "name": "FX Vehicle Registry",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-05 10:00:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "chassis_no",
+   "fieldtype": "Data",
+   "label": "Chassis No",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "idx": 1
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model",
+   "in_list_view": 1,
+   "idx": 2
+  },
+  {
+   "fieldname": "product_name",
+   "fieldtype": "Data",
+   "label": "Product Name",
+   "idx": 3
+  },
+  {
+   "fieldname": "battery_chemistry",
+   "fieldtype": "Select",
+   "label": "Battery Chemistry",
+   "options": "\nLead-Acid Battery\nLithium-Ion Battery",
+   "idx": 4
+  },
+  {
+   "fieldname": "col_1",
+   "fieldtype": "Column Break",
+   "label": "Col 1",
+   "idx": 5
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "in_list_view": 1,
+   "idx": 6
+  },
+  {
+   "fieldname": "mobile",
+   "fieldtype": "Data",
+   "label": "Mobile",
+   "options": "Phone",
+   "search_index": 1,
+   "idx": 7
+  },
+  {
+   "fieldname": "whatsapp",
+   "fieldtype": "Data",
+   "label": "Whatsapp",
+   "options": "Phone",
+   "idx": 8
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email",
+   "idx": 9
+  },
+  {
+   "fieldname": "sec_invoice",
+   "fieldtype": "Section Break",
+   "label": "Invoice",
+   "idx": 10
+  },
+  {
+   "fieldname": "konnect_invoice_no",
+   "fieldtype": "Data",
+   "label": "Konnect Invoice No",
+   "search_index": 1,
+   "idx": 11
+  },
+  {
+   "fieldname": "konnect_invoice_date",
+   "fieldtype": "Date",
+   "label": "Konnect Invoice Date",
+   "idx": 12
+  },
+  {
+   "fieldname": "invoice_date",
+   "fieldtype": "Date",
+   "label": "Retail Invoice Date",
+   "idx": 13
+  },
+  {
+   "fieldname": "showroom_invoice_no",
+   "fieldtype": "Data",
+   "label": "Showroom Invoice No",
+   "idx": 14
+  },
+  {
+   "fieldname": "col_2",
+   "fieldtype": "Column Break",
+   "label": "Col 2",
+   "idx": 15
+  },
+  {
+   "fieldname": "dealer",
+   "fieldtype": "Link",
+   "label": "Dealer",
+   "options": "Customer",
+   "idx": 16
+  },
+  {
+   "fieldname": "dealer_code",
+   "fieldtype": "Data",
+   "label": "Dealer Code",
+   "search_index": 1,
+   "idx": 17
+  },
+  {
+   "fieldname": "grand_total",
+   "fieldtype": "Currency",
+   "label": "Grand Total",
+   "idx": 18
+  },
+  {
+   "fieldname": "sync_key",
+   "fieldtype": "Data",
+   "label": "Sync Key",
+   "unique": 1,
+   "read_only": 1,
+   "hidden": 1,
+   "idx": 19
+  },
+  {
+   "fieldname": "sec_components",
+   "fieldtype": "Section Break",
+   "label": "Components",
+   "idx": 20
+  },
+  {
+   "fieldname": "components",
+   "fieldtype": "Table",
+   "label": "Components",
+   "options": "FX Vehicle Component",
+   "idx": 21
+  },
+  {
+   "fieldname": "import_warnings",
+   "fieldtype": "Small Text",
+   "label": "Import Warnings",
+   "read_only": 1,
+   "idx": 22
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 0,
+   "cancel": 0,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "FX Warranty Service Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Operations Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX CRM",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Coordinator",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Technical Coordinator",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Business Partner",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Spare Store",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "autoname": "field:chassis_no",
+ "title_field": "customer_name",
+ "search_fields": "customer_name,mobile,konnect_invoice_no"
+}

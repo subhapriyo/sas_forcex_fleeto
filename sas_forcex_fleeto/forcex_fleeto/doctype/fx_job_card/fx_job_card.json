@@ -1,0 +1,176 @@
+{
+ "doctype": "DocType",
+ "name": "FX Job Card",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-05 10:00:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "booking",
+   "fieldtype": "Link",
+   "label": "Booking",
+   "options": "FX Technician Booking",
+   "reqd": 1,
+   "idx": 1
+  },
+  {
+   "fieldname": "ticket",
+   "fieldtype": "Link",
+   "label": "Ticket",
+   "options": "FX Service Ticket",
+   "fetch_from": "booking.ticket",
+   "read_only": 1,
+   "in_list_view": 1,
+   "idx": 2
+  },
+  {
+   "fieldname": "technician",
+   "fieldtype": "Link",
+   "label": "Technician",
+   "options": "Employee",
+   "fetch_from": "booking.technician",
+   "read_only": 1,
+   "idx": 3
+  },
+  {
+   "fieldname": "arrival_time",
+   "fieldtype": "Datetime",
+   "label": "Arrival Time",
+   "idx": 4
+  },
+  {
+   "fieldname": "arrival_lat",
+   "fieldtype": "Float",
+   "label": "Arrival Lat",
+   "precision": "6",
+   "idx": 5
+  },
+  {
+   "fieldname": "arrival_lng",
+   "fieldtype": "Float",
+   "label": "Arrival Lng",
+   "precision": "6",
+   "idx": 6
+  },
+  {
+   "fieldname": "departure_time",
+   "fieldtype": "Datetime",
+   "label": "Departure Time",
+   "idx": 7
+  },
+  {
+   "fieldname": "col_1",
+   "fieldtype": "Column Break",
+   "label": "Col 1",
+   "idx": 8
+  },
+  {
+   "fieldname": "odometer_km",
+   "fieldtype": "Int",
+   "label": "Odometer Km",
+   "idx": 9
+  },
+  {
+   "fieldname": "odometer_photo",
+   "fieldtype": "Attach Image",
+   "label": "Odometer Photo",
+   "idx": 10
+  },
+  {
+   "fieldname": "vehicle_status",
+   "fieldtype": "Select",
+   "label": "Vehicle Status",
+   "options": "READY\nFAIL",
+   "reqd": 1,
+   "in_list_view": 1,
+   "idx": 11
+  },
+  {
+   "fieldname": "sec_work",
+   "fieldtype": "Section Break",
+   "label": "Work",
+   "idx": 12
+  },
+  {
+   "fieldname": "root_cause",
+   "fieldtype": "Small Text",
+   "label": "Root Cause",
+   "idx": 13
+  },
+  {
+   "fieldname": "work_done",
+   "fieldtype": "Small Text",
+   "label": "Work Done",
+   "idx": 14
+  },
+  {
+   "fieldname": "parts",
+   "fieldtype": "Table",
+   "label": "Parts",
+   "options": "FX Job Card Part",
+   "idx": 15
+  },
+  {
+   "fieldname": "sec_signatures",
+   "fieldtype": "Section Break",
+   "label": "Signatures",
+   "idx": 16
+  },
+  {
+   "fieldname": "customer_signature",
+   "fieldtype": "Signature",
+   "label": "Dealer / Customer Signature",
+   "idx": 17
+  },
+  {
+   "fieldname": "technician_signature",
+   "fieldtype": "Signature",
+   "label": "Technician Signature",
+   "idx": 18
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "FX Technical Coordinator",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "submit": 1,
+   "cancel": 1
+  },
+  {
+   "role": "FX Warranty Service Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "submit": 1,
+   "cancel": 1
+  },
+  {
+   "role": "FX Operations Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "submit": 1,
+   "cancel": 1
+  }
+ ],
+ "autoname": "hash",
+ "is_submittable": 1
+}

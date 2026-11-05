@@ -1,0 +1,186 @@
+{
+ "doctype": "DocType",
+ "name": "FX Material Inspection",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-05 10:00:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "MIR-.YYYY.-.####",
+   "default": "MIR-.YYYY.-.####",
+   "idx": 1
+  },
+  {
+   "fieldname": "ticket",
+   "fieldtype": "Link",
+   "label": "Ticket",
+   "options": "FX Service Ticket",
+   "reqd": 1,
+   "in_list_view": 1,
+   "idx": 2
+  },
+  {
+   "fieldname": "material_receipt",
+   "fieldtype": "Link",
+   "label": "Material Receipt",
+   "options": "FX Material Receipt",
+   "idx": 3
+  },
+  {
+   "fieldname": "component_type",
+   "fieldtype": "Select",
+   "label": "Component Type",
+   "options": "Lead-Acid Battery\nLithium-Ion Battery\nLithium Charger\nLead Charger\nMotor\nController\nChassis\nIOT Device\nOther",
+   "fetch_from": "ticket.component_type",
+   "reqd": 1,
+   "idx": 4
+  },
+  {
+   "fieldname": "serial_no",
+   "fieldtype": "Data",
+   "label": "Serial No",
+   "fetch_from": "ticket.component_serial",
+   "idx": 5
+  },
+  {
+   "fieldname": "original_invoice",
+   "fieldtype": "Data",
+   "label": "Original Invoice",
+   "fetch_from": "ticket.invoice_no",
+   "idx": 6
+  },
+  {
+   "fieldname": "inspector",
+   "fieldtype": "Link",
+   "label": "Inspector",
+   "options": "User",
+   "default": "__user",
+   "idx": 7
+  },
+  {
+   "fieldname": "col_1",
+   "fieldtype": "Column Break",
+   "label": "Col 1",
+   "idx": 8
+  },
+  {
+   "fieldname": "finding",
+   "fieldtype": "Select",
+   "label": "Finding",
+   "options": "Found OK\nRepairable\nIrreparable",
+   "reqd": 1,
+   "in_list_view": 1,
+   "idx": 9
+  },
+  {
+   "fieldname": "settlement_action",
+   "fieldtype": "Select",
+   "label": "Settlement Action",
+   "options": "\nSame Return\nRepair & Same Return\nSend to Supplier\nIssue Credit Note\nReplace Unit\nReject Claim",
+   "in_list_view": 1,
+   "description": "Blank = system default for this component & finding",
+   "idx": 10
+  },
+  {
+   "fieldname": "replacement_serial",
+   "fieldtype": "Data",
+   "label": "Replacement Serial",
+   "depends_on": "eval:doc.settlement_action=='Replace Unit'",
+   "idx": 11
+  },
+  {
+   "fieldname": "md_approved",
+   "fieldtype": "Check",
+   "label": "Goodwill / MD approval",
+   "idx": 12
+  },
+  {
+   "fieldname": "sec_values",
+   "fieldtype": "Section Break",
+   "label": "Values",
+   "idx": 13
+  },
+  {
+   "fieldname": "invoiced_value",
+   "fieldtype": "Currency",
+   "label": "Invoiced Value",
+   "idx": 14
+  },
+  {
+   "fieldname": "credit_note_amount",
+   "fieldtype": "Currency",
+   "label": "Credit Note Amount",
+   "idx": 15
+  },
+  {
+   "fieldname": "replacement_value",
+   "fieldtype": "Currency",
+   "label": "Replacement Value",
+   "idx": 16
+  },
+  {
+   "fieldname": "col_2",
+   "fieldtype": "Column Break",
+   "label": "Col 2",
+   "idx": 17
+  },
+  {
+   "fieldname": "scrap_tag",
+   "fieldtype": "Data",
+   "label": "Hazardous Scrap Tag",
+   "idx": 18
+  },
+  {
+   "fieldname": "recycler_batch",
+   "fieldtype": "Data",
+   "label": "Authorised Recycler Batch",
+   "idx": 19
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "FX Warranty Service Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "submit": 1,
+   "cancel": 1
+  },
+  {
+   "role": "FX Operations Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "submit": 1,
+   "cancel": 1
+  },
+  {
+   "role": "FX Spare Store",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  }
+ ],
+ "autoname": "naming_series:",
+ "is_submittable": 1,
+ "track_changes": 1
+}

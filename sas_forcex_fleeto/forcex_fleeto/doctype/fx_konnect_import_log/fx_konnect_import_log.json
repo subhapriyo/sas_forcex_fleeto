@@ -1,0 +1,115 @@
+{
+ "doctype": "DocType",
+ "name": "FX Konnect Import Log",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-05 10:00:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Source",
+   "options": "File Upload\nAPI",
+   "in_list_view": 1,
+   "idx": 1
+  },
+  {
+   "fieldname": "file",
+   "fieldtype": "Attach",
+   "label": "File",
+   "idx": 2
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Queued\nRunning\nDone\nFailed",
+   "in_list_view": 1,
+   "idx": 3
+  },
+  {
+   "fieldname": "total",
+   "fieldtype": "Int",
+   "label": "Total",
+   "idx": 4
+  },
+  {
+   "fieldname": "importable",
+   "fieldtype": "Int",
+   "label": "Importable",
+   "idx": 5
+  },
+  {
+   "fieldname": "blocked",
+   "fieldtype": "Int",
+   "label": "Blocked",
+   "in_list_view": 1,
+   "idx": 6
+  },
+  {
+   "fieldname": "created",
+   "fieldtype": "Int",
+   "label": "Created",
+   "idx": 7
+  },
+  {
+   "fieldname": "updated",
+   "fieldtype": "Int",
+   "label": "Updated",
+   "idx": 8
+  },
+  {
+   "fieldname": "details",
+   "fieldtype": "Code",
+   "label": "Details",
+   "options": "JSON",
+   "read_only": 1,
+   "idx": 9
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 0,
+   "cancel": 0,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "FX Warranty Service Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Operations Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX CRM",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Coordinator",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Technical Coordinator",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "autoname": "hash"
+}

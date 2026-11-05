@@ -1,0 +1,168 @@
+{
+ "doctype": "DocType",
+ "name": "FX Supplier RMA",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-05 10:00:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "RMA-SUP-.YYYY.-.###",
+   "default": "RMA-SUP-.YYYY.-.###",
+   "idx": 1
+  },
+  {
+   "fieldname": "ticket",
+   "fieldtype": "Link",
+   "label": "Ticket",
+   "options": "FX Service Ticket",
+   "reqd": 1,
+   "in_list_view": 1,
+   "idx": 2
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier",
+   "reqd": 1,
+   "in_list_view": 1,
+   "idx": 3
+  },
+  {
+   "fieldname": "component_serial",
+   "fieldtype": "Data",
+   "label": "Component Serial",
+   "fetch_from": "ticket.component_serial",
+   "idx": 4
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nSent to Supplier\nSupplier Acknowledged\nRepaired Pack Returned\nSupplier Credited\nClosed",
+   "default": "Draft",
+   "in_list_view": 1,
+   "idx": 5
+  },
+  {
+   "fieldname": "courier",
+   "fieldtype": "Data",
+   "label": "Courier",
+   "idx": 6
+  },
+  {
+   "fieldname": "awb_no",
+   "fieldtype": "Data",
+   "label": "AWB No",
+   "idx": 7
+  },
+  {
+   "fieldname": "col_1",
+   "fieldtype": "Column Break",
+   "label": "Col 1",
+   "idx": 8
+  },
+  {
+   "fieldname": "supplier_assessment",
+   "fieldtype": "Select",
+   "label": "Supplier Assessment",
+   "options": "\nRepaired Pack Returned\nPack Irreparable - Supplier Credit Note",
+   "idx": 9
+  },
+  {
+   "fieldname": "supplier_cn_ref",
+   "fieldtype": "Data",
+   "label": "Supplier Credit Note Ref",
+   "idx": 10
+  },
+  {
+   "fieldname": "supplier_credit",
+   "fieldtype": "Currency",
+   "label": "Credit Value Received",
+   "idx": 11
+  },
+  {
+   "fieldname": "dealer_invoiced_value",
+   "fieldtype": "Currency",
+   "label": "Dealer Invoiced Value",
+   "idx": 12
+  },
+  {
+   "fieldname": "auto_dealer_cn",
+   "fieldtype": "Check",
+   "label": "Auto-generate Dealer Credit Note",
+   "default": "1",
+   "idx": 13
+  },
+  {
+   "fieldname": "dealer_credit",
+   "fieldtype": "Currency",
+   "label": "Dealer Credit",
+   "read_only": 1,
+   "idx": 14
+  },
+  {
+   "fieldname": "margin_absorbed",
+   "fieldtype": "Currency",
+   "label": "Margin Absorbed",
+   "read_only": 1,
+   "idx": 15
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 0,
+   "cancel": 0,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "FX Warranty Service Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Operations Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Spare Store",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX CRM",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Coordinator",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Technical Coordinator",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "autoname": "naming_series:",
+ "track_changes": 1
+}

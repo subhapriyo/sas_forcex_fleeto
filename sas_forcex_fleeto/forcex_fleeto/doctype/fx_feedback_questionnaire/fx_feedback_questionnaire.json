@@ -1,0 +1,139 @@
+{
+ "doctype": "DocType",
+ "name": "FX Feedback Questionnaire",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-05 10:00:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "code",
+   "fieldtype": "Data",
+   "label": "Code",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "idx": 1
+  },
+  {
+   "fieldname": "questionnaire_name",
+   "fieldtype": "Data",
+   "label": "Questionnaire Name",
+   "reqd": 1,
+   "idx": 2
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nActive\nSuperseded",
+   "default": "Draft",
+   "in_list_view": 1,
+   "idx": 3
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Int",
+   "label": "Version",
+   "default": "1",
+   "idx": 4
+  },
+  {
+   "fieldname": "col_1",
+   "fieldtype": "Column Break",
+   "label": "Col 1",
+   "idx": 5
+  },
+  {
+   "fieldname": "effective_from",
+   "fieldtype": "Date",
+   "label": "Effective From",
+   "reqd": 1,
+   "in_list_view": 1,
+   "idx": 6
+  },
+  {
+   "fieldname": "effective_to",
+   "fieldtype": "Date",
+   "label": "Effective To",
+   "read_only": 1,
+   "idx": 7
+  },
+  {
+   "fieldname": "call_after_days",
+   "fieldtype": "Int",
+   "label": "Call After Days",
+   "default": "7",
+   "reqd": 1,
+   "idx": 8
+  },
+  {
+   "fieldname": "max_attempts",
+   "fieldtype": "Int",
+   "label": "Max Attempts",
+   "default": "3",
+   "reqd": 1,
+   "idx": 9
+  },
+  {
+   "fieldname": "sec_whatsapp",
+   "fieldtype": "Section Break",
+   "label": "WhatsApp",
+   "idx": 10
+  },
+  {
+   "fieldname": "whatsapp_template",
+   "fieldtype": "Small Text",
+   "label": "Whatsapp Template",
+   "default": "Dear {customer_name}, thank you for sharing your feedback with FLEETO Customer Care today on invoice {invoice_no}. We value your opinion. — Team FLEETO",
+   "idx": 11
+  },
+  {
+   "fieldname": "sec_questions",
+   "fieldtype": "Section Break",
+   "label": "Questions",
+   "idx": 12
+  },
+  {
+   "fieldname": "questions",
+   "fieldtype": "Table",
+   "label": "Questions",
+   "options": "FX Feedback Question",
+   "idx": 13
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 0,
+   "cancel": 0,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "FX Warranty Service Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX CRM",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Coordinator",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "autoname": "field:code"
+}

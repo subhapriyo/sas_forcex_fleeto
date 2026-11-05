@@ -1,0 +1,136 @@
+{
+ "doctype": "DocType",
+ "name": "FX Service Settings",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-05 10:00:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "sec_konnect",
+   "fieldtype": "Section Break",
+   "label": "Konnect",
+   "idx": 1
+  },
+  {
+   "fieldname": "konnect_base_url",
+   "fieldtype": "Data",
+   "label": "Konnect API Base URL",
+   "idx": 2
+  },
+  {
+   "fieldname": "konnect_api_key",
+   "fieldtype": "Password",
+   "label": "Konnect API Key",
+   "idx": 3
+  },
+  {
+   "fieldname": "strict_vin",
+   "fieldtype": "Check",
+   "label": "Warn on non-VIN chassis numbers",
+   "default": "1",
+   "idx": 4
+  },
+  {
+   "fieldname": "battery_type_map",
+   "fieldtype": "Code",
+   "label": "Battery Type Map",
+   "options": "JSON",
+   "default": "{\"LED\": \"Lead-Acid Battery\", \"LI\": \"Lithium-Ion Battery\"}",
+   "idx": 5
+  },
+  {
+   "fieldname": "sec_warranty",
+   "fieldtype": "Section Break",
+   "label": "Warranty",
+   "idx": 6
+  },
+  {
+   "fieldname": "warranty_start_basis",
+   "fieldtype": "Select",
+   "label": "Warranty Start Basis",
+   "options": "Invoice Date\nKonnect Invoice Date",
+   "default": "Invoice Date",
+   "idx": 7
+  },
+  {
+   "fieldname": "warranty_policies",
+   "fieldtype": "Table",
+   "label": "Warranty Policies",
+   "options": "FX Warranty Policy",
+   "idx": 8
+  },
+  {
+   "fieldname": "replace_threshold",
+   "fieldtype": "Currency",
+   "label": "Replacement needs MD approval above",
+   "idx": 9
+  },
+  {
+   "fieldname": "dealer_credit_policy",
+   "fieldtype": "Select",
+   "label": "Dealer Credit Policy",
+   "options": "pass_through\nfull_refund",
+   "default": "pass_through",
+   "idx": 10
+  },
+  {
+   "fieldname": "credit_note_item",
+   "fieldtype": "Link",
+   "label": "Credit Note Item",
+   "options": "Item",
+   "description": "Non-stock service item used on credit notes",
+   "idx": 11
+  },
+  {
+   "fieldname": "sec_notifications",
+   "fieldtype": "Section Break",
+   "label": "Notifications",
+   "idx": 12
+  },
+  {
+   "fieldname": "whatsapp_sender",
+   "fieldtype": "Data",
+   "label": "Whatsapp Sender",
+   "description": "Dotted path of a send(mobile, message) function; blank = log only",
+   "idx": 13
+  },
+  {
+   "fieldname": "detractor_alert_role",
+   "fieldtype": "Link",
+   "label": "Detractor Alert Role",
+   "options": "Role",
+   "default": "FX Warranty Service Head",
+   "idx": 14
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 0,
+   "cancel": 0,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "FX Warranty Service Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Operations Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  }
+ ],
+ "issingle": 1
+}

@@ -1,0 +1,428 @@
+{
+ "doctype": "DocType",
+ "name": "FX Service Ticket",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-05 10:00:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "FLT-SRV-.YYYY.-.#####",
+   "default": "FLT-SRV-.YYYY.-.#####",
+   "idx": 1
+  },
+  {
+   "fieldname": "ticket_type",
+   "fieldtype": "Select",
+   "label": "Ticket Type",
+   "options": "Service\nWarranty",
+   "reqd": 1,
+   "in_list_view": 1,
+   "idx": 2
+  },
+  {
+   "fieldname": "claim_for",
+   "fieldtype": "Select",
+   "label": "Claim For",
+   "options": "\nCustomer Claim\nInstore - Dealer\nInstore - Distributor",
+   "depends_on": "eval:doc.ticket_type=='Warranty'",
+   "idx": 3
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nOpen\nInvoice Verified\nTele-Calling Triage\nTechnician Assigned\nVisit Done - Unresolved\nMaterial Received\nGoodwill Approval Pending\nUnder Inspection\nAt Supplier\nReceived from Supplier\nCredit Note Pending\nReady to Dispatch\nDispatched\nDelivered\nFeedback Pending\nClaim Rejected\nClosed",
+   "default": "Draft",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "read_only": 1,
+   "idx": 4
+  },
+  {
+   "fieldname": "col_1",
+   "fieldtype": "Column Break",
+   "label": "Col 1",
+   "idx": 5
+  },
+  {
+   "fieldname": "business_partner",
+   "fieldtype": "Link",
+   "label": "Claim From (Dealer/Distributor)",
+   "options": "Customer",
+   "idx": 6
+  },
+  {
+   "fieldname": "distributor",
+   "fieldtype": "Link",
+   "label": "Distributor (auto)",
+   "options": "Customer",
+   "read_only": 1,
+   "idx": 7
+  },
+  {
+   "fieldname": "sec_1_lookup_vehicle_identification",
+   "fieldtype": "Section Break",
+   "label": "1. Lookup & Vehicle Identification",
+   "idx": 8
+  },
+  {
+   "fieldname": "search_by",
+   "fieldtype": "Select",
+   "label": "Search By",
+   "options": "Serial Number\nInvoice Number\nChassis No\nCustomer Mobile",
+   "default": "Serial Number",
+   "idx": 9
+  },
+  {
+   "fieldname": "lookup_query",
+   "fieldtype": "Data",
+   "label": "Lookup Query",
+   "idx": 10
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "label": "Vehicle",
+   "options": "FX Vehicle Registry",
+   "idx": 11
+  },
+  {
+   "fieldname": "col_2",
+   "fieldtype": "Column Break",
+   "label": "Col 2",
+   "idx": 12
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "fetch_from": "vehicle.customer_name",
+   "in_list_view": 1,
+   "idx": 13
+  },
+  {
+   "fieldname": "mobile",
+   "fieldtype": "Data",
+   "label": "Mobile",
+   "fetch_from": "vehicle.mobile",
+   "idx": 14
+  },
+  {
+   "fieldname": "chassis_no",
+   "fieldtype": "Data",
+   "label": "Chassis No",
+   "fetch_from": "vehicle.chassis_no",
+   "read_only": 1,
+   "idx": 15
+  },
+  {
+   "fieldname": "invoice_no",
+   "fieldtype": "Data",
+   "label": "Invoice No",
+   "fetch_from": "vehicle.konnect_invoice_no",
+   "read_only": 1,
+   "idx": 16
+  },
+  {
+   "fieldname": "sale_date",
+   "fieldtype": "Date",
+   "label": "Sale Date",
+   "fetch_from": "vehicle.invoice_date",
+   "read_only": 1,
+   "idx": 17
+  },
+  {
+   "fieldname": "sec_2_claim_component",
+   "fieldtype": "Section Break",
+   "label": "2. Claim & Component",
+   "idx": 18
+  },
+  {
+   "fieldname": "component_type",
+   "fieldtype": "Select",
+   "label": "Component Type",
+   "options": "\nLead-Acid Battery\nLithium-Ion Battery\nLithium Charger\nLead Charger\nMotor\nController\nChassis\nIOT Device\nOther",
+   "idx": 19
+  },
+  {
+   "fieldname": "component_serial",
+   "fieldtype": "Data",
+   "label": "Component Serial",
+   "search_index": 1,
+   "idx": 20
+  },
+  {
+   "fieldname": "physical_part_no",
+   "fieldtype": "Data",
+   "label": "Physical Part No",
+   "idx": 21
+  },
+  {
+   "fieldname": "system_match",
+   "fieldtype": "Check",
+   "label": "Verified against Konnect",
+   "read_only": 1,
+   "idx": 22
+  },
+  {
+   "fieldname": "override_reason",
+   "fieldtype": "Small Text",
+   "label": "Part override reason",
+   "depends_on": "eval:!doc.system_match && doc.component_serial",
+   "idx": 23
+  },
+  {
+   "fieldname": "col_3",
+   "fieldtype": "Column Break",
+   "label": "Col 3",
+   "idx": 24
+  },
+  {
+   "fieldname": "warranty_status",
+   "fieldtype": "Data",
+   "label": "Warranty Status",
+   "read_only": 1,
+   "in_list_view": 1,
+   "idx": 25
+  },
+  {
+   "fieldname": "warranty_expires_on",
+   "fieldtype": "Date",
+   "label": "Warranty Expires On",
+   "read_only": 1,
+   "idx": 26
+  },
+  {
+   "fieldname": "odometer_km",
+   "fieldtype": "Int",
+   "label": "Odometer Km",
+   "idx": 27
+  },
+  {
+   "fieldname": "goodwill_requested",
+   "fieldtype": "Check",
+   "label": "Goodwill Requested",
+   "idx": 28
+  },
+  {
+   "fieldname": "goodwill_approved_by",
+   "fieldtype": "Link",
+   "label": "Goodwill Approved By",
+   "options": "User",
+   "read_only": 1,
+   "idx": 29
+  },
+  {
+   "fieldname": "damage_details",
+   "fieldtype": "Small Text",
+   "label": "Damage Details",
+   "idx": 30
+  },
+  {
+   "fieldname": "sec_3_evidence_mandatory_gate",
+   "fieldtype": "Section Break",
+   "label": "3. Evidence (mandatory gate)",
+   "idx": 31
+  },
+  {
+   "fieldname": "customer_invoice",
+   "fieldtype": "Attach",
+   "label": "Customer Invoice",
+   "idx": 32
+  },
+  {
+   "fieldname": "distributor_invoice",
+   "fieldtype": "Attach",
+   "label": "Distributor Invoice",
+   "idx": 33
+  },
+  {
+   "fieldname": "tally_invoice",
+   "fieldtype": "Attach",
+   "label": "Tally Invoice",
+   "idx": 34
+  },
+  {
+   "fieldname": "col_4",
+   "fieldtype": "Column Break",
+   "label": "Col 4",
+   "idx": 35
+  },
+  {
+   "fieldname": "component_photo",
+   "fieldtype": "Attach Image",
+   "label": "Component Photo",
+   "idx": 36
+  },
+  {
+   "fieldname": "odometer_photo",
+   "fieldtype": "Attach Image",
+   "label": "Odometer Photo",
+   "idx": 37
+  },
+  {
+   "fieldname": "video_clip",
+   "fieldtype": "Attach",
+   "label": "Video Clip",
+   "idx": 38
+  },
+  {
+   "fieldname": "sec_tele_calling_triage",
+   "fieldtype": "Section Break",
+   "label": "Tele-Calling Triage",
+   "collapsible": 1,
+   "depends_on": "eval:doc.ticket_type=='Service'",
+   "idx": 39
+  },
+  {
+   "fieldname": "call_channel",
+   "fieldtype": "Select",
+   "label": "Call Channel",
+   "options": "Phone Call\nWhatsApp Video Call\nDealer Conference",
+   "idx": 40
+  },
+  {
+   "fieldname": "triage_checks",
+   "fieldtype": "Table",
+   "label": "Triage Checks",
+   "options": "FX Triage Check",
+   "idx": 41
+  },
+  {
+   "fieldname": "triage_outcome",
+   "fieldtype": "Select",
+   "label": "Triage Outcome",
+   "options": "\nResolved Remotely\nEscalate to Field Technician\nSend Component to Factory",
+   "idx": 42
+  },
+  {
+   "fieldname": "sec_settlement",
+   "fieldtype": "Section Break",
+   "label": "Settlement",
+   "collapsible": 1,
+   "idx": 43
+  },
+  {
+   "fieldname": "inspection",
+   "fieldtype": "Link",
+   "label": "Inspection",
+   "options": "FX Material Inspection",
+   "read_only": 1,
+   "idx": 44
+  },
+  {
+   "fieldname": "supplier_rma",
+   "fieldtype": "Link",
+   "label": "Supplier Rma",
+   "options": "FX Supplier RMA",
+   "read_only": 1,
+   "idx": 45
+  },
+  {
+   "fieldname": "credit_note",
+   "fieldtype": "Link",
+   "label": "Credit Note",
+   "options": "Sales Invoice",
+   "read_only": 1,
+   "idx": 46
+  },
+  {
+   "fieldname": "delivery_note",
+   "fieldtype": "Link",
+   "label": "FOC / Warranty Challan",
+   "options": "Delivery Note",
+   "read_only": 1,
+   "idx": 47
+  },
+  {
+   "fieldname": "advance_warranty_claim_invoice",
+   "fieldtype": "Data",
+   "label": "Advance Warranty Claim Invoice",
+   "idx": 48
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 0,
+   "cancel": 0,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "FX CRM",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Coordinator",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Technical Coordinator",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Warranty Service Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Operations Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Business Partner",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX ASM",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "FX RSM",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Sales Head",
+   "read": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Sales Team",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "autoname": "naming_series:",
+ "track_changes": 1,
+ "title_field": "customer_name",
+ "search_fields": "customer_name,mobile,component_serial,chassis_no"
+}

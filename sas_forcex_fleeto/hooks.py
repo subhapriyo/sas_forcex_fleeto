@@ -277,3 +277,19 @@ required_apps = ["erpnext", "sas_forcex"]
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+
+# ---------------------------------------------------------------------------
+# ForceX FLEETO — service & warranty module (sas_forcex_fleeto.forcex_fleeto)
+# ---------------------------------------------------------------------------
+
+# Roles first (DocType permissions reference them), custom fields after.
+# All idempotent, so safe on every install / migrate.
+before_install = "sas_forcex_fleeto.forcex_fleeto.install.before_install"
+before_migrate = ["sas_forcex_fleeto.forcex_fleeto.install.before_migrate"]
+after_install = "sas_forcex_fleeto.forcex_fleeto.install.after_install"
+after_migrate = ["sas_forcex_fleeto.forcex_fleeto.install.after_migrate"]
+
+scheduler_events = {
+	# 06:15 IST daily, before the Feedback Desk starts calling
+	"cron": {"15 6 * * *": ["sas_forcex_fleeto.forcex_fleeto.tasks.build_feedback_queue"]},
+}
