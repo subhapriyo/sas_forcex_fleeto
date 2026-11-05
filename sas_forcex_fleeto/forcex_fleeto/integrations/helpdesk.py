@@ -8,7 +8,7 @@ Design (decided by the Helpdesk trial, 05-Nov-2026, helpdesk v1.30.2):
     We never touch `status`, Helpdesk never touches `fx_stage`.
   * Only tickets whose HD Ticket Type is "Service" or "Warranty" are FLEETO
     tickets; every other Helpdesk ticket behaves exactly as stock Helpdesk.
-  * Agents move stages from the Helpdesk header ("Stage: <x>" dropdown,
+  * Agents move stages from the Helpdesk header ("→ <next stage>" buttons,
     an HD Form Script) or the Desk form (public/js/hd_ticket_fx.js).
     Both call set_stage(), which runs the same validate hook.
 
@@ -98,7 +98,10 @@ HIDE_FROM_CUSTOMER = {"fx_stage", "fx_warranty_status", "fx_override_reason"}
 FORM_SCRIPT_NAME = "FLEETO stage actions"
 # Helpdesk form-script contract (helpdesk/desk/src/composables/formCustomisation.ts):
 #   the script defines setupForm(ctx) -> {actions}; ctx = {doc, call, toast, ...}; it may be async.
-#   Actions with group + buttonLabel render as one dropdown button in the ticket header.
+#   Actions WITHOUT `group` render as plain header buttons wired with @click="action.onClick()".
+#   We use those on purpose: on Helpdesk 1.30 (frappe-ui 1.0.0-beta.24) a grouped dropdown
+#   item ("Stage: X" menu) rendered fine but its onClick never fired when tested on the
+#   bench, so no request reached the server. Re-test before switching back to a dropdown.
 FORM_SCRIPT = """
 async function setupForm({ doc, call, toast }) {
   if (!doc || !["Service", "Warranty"].includes(doc.ticket_type)) return { actions: [] };
@@ -109,7 +112,7 @@ async function setupForm({ doc, call, toast }) {
       .then(() => { toast.success(ok); window.location.reload(); })
       .catch((e) => toast.error((e && (e.messages && e.messages[0])) || (e && e.message) || "Not allowed"));
   const actions = (next || []).map((stage) => ({
-    group: "Stage", buttonLabel: "Stage: " + (doc.fx_stage || "Draft"), label: stage,
+    label: "→ " + stage,
     onClick: () => stage === "Material Received"
       ? run("receive_material", { ticket: doc.name }, "Material received")
       : run("set_stage", { ticket: doc.name, stage }, "Moved to " + stage),

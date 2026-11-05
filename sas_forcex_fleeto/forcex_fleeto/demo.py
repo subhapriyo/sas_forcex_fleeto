@@ -67,6 +67,7 @@ def seed() -> dict:
     techs = _technicians()
     out["technicians"] = len(techs)
     tickets = _tickets(files)
+    _helpdesk_parties(tickets)
     out["tickets"] = {k: frappe.db.get_value("HD Ticket", v, "fx_stage") for k, v in tickets.items()}
     out["calendar"] = _calendar(techs, tickets)
     out["inspection"] = _inspection(tickets)
@@ -343,6 +344,28 @@ def _tickets(files: dict) -> dict:
                              "damage_details": "Battery dead, 14 months old (out of warranty)"},
                       [S.OPEN], receive=True)                                  # -> Goodwill Approval Pending
     return t
+
+
+def _helpdesk_parties(tickets: dict) -> None:
+    """ForceX Helpdesk shows an HD Customer and the requester's Contact on every ticket.
+    Link each dealer's HD Customer to its ERPNext Customer and give the contact the
+    dealer's name (Helpdesk otherwise shows the e-mail prefix, e.g. "dl-00381")."""
+    hd_customer = {}
+    for code, _name in DEALERS:
+        dealer = frappe.db.get_value("Customer", {"fx_konnect_party_code": code})
+        hc = frappe.db.get_value("HD Customer", {"erpnext_customer": dealer})
+        if not hc:
+            hc = frappe.get_doc({"doctype": "HD Customer", "customer_name": dealer, "erpnext_customer": dealer}).insert(
+                ignore_permissions=True).name
+        hd_customer[dealer] = hc
+        contact = frappe.db.get_value("Contact Email", {"email_id": f"{code.lower()}@dealers.demo.fleeto"}, "parent")
+        if contact:
+            frappe.db.set_value("Contact", contact, {"first_name": dealer, "last_name": "", "full_name": dealer})
+    for name in tickets.values():
+        partner, current = frappe.db.get_value("HD Ticket", name, ["fx_business_partner", "customer"])
+        if partner in hd_customer and not current:
+            # set directly: only a display link, no rule depends on it
+            frappe.db.set_value("HD Ticket", name, "customer", hd_customer[partner], update_modified=False)
 
 
 def _calendar(techs: dict, tickets: dict) -> int:
