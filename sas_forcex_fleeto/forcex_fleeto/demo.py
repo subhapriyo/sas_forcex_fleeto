@@ -177,6 +177,15 @@ VEHICLES = [
 ]
 
 
+def _gst(total: float) -> dict:
+    """Intra-state 5% GST (2.5% CGST + 2.5% SGST) that adds up exactly, as Konnect sends it.
+    The parser checks net + tax == total, so demo figures must be consistent."""
+    net = round(total / 1.05, 2)
+    cgst = round((total - net) / 2, 2)
+    return {"Total Item Value Without GST": net, "CGST": cgst, "SGST": round(total - net - cgst, 2), "IGST": 0,
+            "Total Item Value With GST": total}
+
+
 def chassis(n: int) -> str:
     return f"{CHASSIS_PREFIX}XX26{n:07d}"   # 17 chars, no I/O/Q -> no VIN warnings
 
@@ -186,7 +195,8 @@ def battery(n: int, i: int = 1) -> str:
 
 
 def _vehicles() -> dict:
-    header = list(konnect_parser.REQUIRED_COLUMNS) + ["WhatsApp No", "Product Name", "Total Item Value With GST",
+    header = list(konnect_parser.REQUIRED_COLUMNS) + ["WhatsApp No", "Product Name", "Total Item Value Without GST",
+                                                       "CGST", "SGST", "IGST", "Total Item Value With GST",
                                                        "Motor", "Controller", "Charger", "Battery1", "Battery2"]
     dealer_names = dict(DEALERS)
     rows = []
@@ -196,7 +206,7 @@ def _vehicles() -> dict:
             "Mobile Number": f"98300001{n:02d}", "WhatsApp No": f"98300001{n:02d}",
             "Invoice Date": _d(days), "Konnect Invoice Number": f"DEMO-INV-{n:03d}", "Konnect Invoice Date": _d(days),
             "Model": model, "Product Name": f"{model} {'LI' if btype == 'LI' else 'LED'} 60V", "Battery Type": btype,
-            "Chassis": chassis(n), "Total Item Value With GST": 0,
+            "Chassis": chassis(n), **_gst(54500 if btype == "LED" else 89000),
             "Motor": f"DEMO-MTR-{n:02d}", "Controller": f"DEMO-CNT-{n:02d}", "Charger": f"DEMO-CHG-{n:02d}",
             "Battery1": battery(n, 1), "Battery2": battery(n, 2) if btype == "LED" else "",
         }

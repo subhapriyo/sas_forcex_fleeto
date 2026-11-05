@@ -63,9 +63,10 @@ class FXTechnicianBooking(Document):
         clashes = scheduler.find_conflicts(self._as_booking(), existing)
         if clashes:
             c = clashes[0]
+            who = frappe.db.get_value("Employee", self.technician, "employee_name") or self.technician
             frappe.throw(
                 _("{0} is already booked {1}–{2} ({3}).").format(
-                    self.technician, c.start.strftime("%I:%M %p"), c.end.strftime("%I:%M %p"), c.ticket or c.status),
+                    who, c.start.strftime("%I:%M %p"), c.end.strftime("%I:%M %p"), c.ticket or c.status),
                 title=_("Calendar conflict"),
             )
 

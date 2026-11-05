@@ -4,7 +4,7 @@
  "module": "ForceX FLEETO",
  "custom": 0,
  "engine": "InnoDB",
- "modified": "2026-11-05 10:00:00.000000",
+ "modified": "2026-11-05 16:00:00.000000",
  "owner": "Administrator",
  "fields": [
   {
@@ -46,7 +46,7 @@
   {
    "fieldname": "col_1",
    "fieldtype": "Column Break",
-   "label": "Col 1",
+   "label": "",
    "idx": 5
   },
   {
@@ -94,7 +94,7 @@
   {
    "fieldname": "col_2",
    "fieldtype": "Column Break",
-   "label": "Col 2",
+   "label": "",
    "idx": 12
   },
   {
@@ -179,7 +179,7 @@
   {
    "fieldname": "col_3",
    "fieldtype": "Column Break",
-   "label": "Col 3",
+   "label": "",
    "idx": 24
   },
   {
@@ -250,7 +250,7 @@
   {
    "fieldname": "col_4",
    "fieldtype": "Column Break",
-   "label": "Col 4",
+   "label": "",
    "idx": 35
   },
   {

@@ -139,4 +139,7 @@ class FXServiceTicket(Document):
         missing = warranty_rules.missing_evidence(
             self.claim_for or ClaimFor.CUSTOMER, {f: self.get(f) for f in EVIDENCE_FIELDS})
         if missing:
-            frappe.throw(_("Attach before submitting: {0}").format(", ".join(missing)), title=_("Evidence missing"))
+            # services/ returns fieldnames; show users the form labels instead
+            label = lambda f: self.meta.get_label(f) or f  # noqa: E731
+            readable = [" or ".join(label(x) for x in m.split(" or ")) for m in missing]
+            frappe.throw(_("Attach before submitting: {0}").format(", ".join(readable)), title=_("Evidence missing"))

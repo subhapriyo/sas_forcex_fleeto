@@ -32,7 +32,7 @@ from ..services.constants import (
 )
 
 MODULE = "ForceX FLEETO"
-MODIFIED = "2026-11-05 10:00:00.000000"   # bump when you change a spec, or migrate skips it
+MODIFIED = "2026-11-05 16:00:00.000000"   # bump when you change a spec, or migrate skips it
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -42,8 +42,9 @@ def opts(values) -> str:
 
 def f(fieldname, fieldtype, label=None, options=None, **kw) -> dict:
     """One field. Extra kwargs pass straight to the JSON (reqd=1, in_list_view=1 ...)."""
+    # label=None -> derive from fieldname; label="" -> deliberately blank (column breaks)
     d = {"fieldname": fieldname, "fieldtype": fieldtype,
-         "label": label or fieldname.replace("_", " ").title()}
+         "label": fieldname.replace("_", " ").title() if label is None else label}
     if options is not None:
         d["options"] = options
     d.update(kw)
