@@ -20,6 +20,10 @@ def enqueue_send(mobile: str, message: str, ref_doctype: str, ref_name: str):
 
 
 def send(mobile: str, message: str, ref_doctype: str, ref_name: str):
+    # The record can vanish before the job runs (deleted, or a rolled-back test).
+    # Nothing to report against, so skip instead of failing the job.
+    if not frappe.db.exists(ref_doctype, ref_name):
+        return
     path = settings().whatsapp_sender
     status = "logged only (no provider configured)"
     if path and mobile:
@@ -29,7 +33,10 @@ def send(mobile: str, message: str, ref_doctype: str, ref_name: str):
         except Exception:
             frappe.log_error(title="FX WhatsApp send failed", reference_doctype=ref_doctype, reference_name=ref_name)
             status = "FAILED (see Error Log)"
-    frappe.get_doc(ref_doctype, ref_name).add_comment("Info", f"WhatsApp to {mobile}: {status}<br>{frappe.utils.escape_html(message)}")
+    ref = frappe.get_doc(ref_doctype, ref_name)
+    ref.add_comment("Info", f"WhatsApp to {mobile}: {status}<br>{frappe.utils.escape_html(message)}")
+    if status == "sent" and ref.meta.has_field("whatsapp_sent"):
+        ref.db_set("whatsapp_sent", 1)  # only a real send flips the flag
 
 
 def send_booking_alert(booking: str):

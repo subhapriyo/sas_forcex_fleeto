@@ -57,6 +57,12 @@ class TestRowParsing(unittest.TestCase):
         self.assertEqual(len(batteries), 6)
         self.assertIn(("Motor", "FLEETO26MTR1234"), [(c.component_type, c.serial_no) for c in row.components])
 
+    def test_chassis_is_its_own_warranty_component(self):
+        # Found on real data (Phase 1): chassis claims need a registry row too.
+        row = self.by_inv["TINV0018"]
+        chassis = [c for c in row.components if c.component_type == ComponentType.CHASSIS]
+        self.assertEqual([(c.serial_no, c.source_column) for c in chassis], [("MD9EV2WL012345", "Chassis")])
+
     def test_led_battery_type_is_mapped_to_lead_acid(self):
         self.assertEqual(self.by_inv["TINV0018"].battery_chemistry, ComponentType.LEAD_ACID_BATTERY)
 

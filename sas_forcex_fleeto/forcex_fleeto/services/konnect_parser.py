@@ -341,4 +341,9 @@ def _parse_one(row_no: int, values: list, col: dict[str, int], btmap: dict, stri
         if serial:
             row.components.append(Component(row.battery_chemistry or ComponentType.OTHER, serial, column))
 
+    # The chassis carries its own warranty (structural defects), so it gets a
+    # component row like any other part; its serial is the chassis number.
+    if row.chassis_no:
+        row.components.append(Component(ComponentType.CHASSIS, row.chassis_no, "Chassis"))
+
     return row

@@ -2,6 +2,11 @@
 
 DocType integration tests need a site, so they run through Frappe's own runner:
     bench --site fleeto.localhost run-tests --app sas_forcex_fleeto
+
+_dev/ holds local helper scripts (git-excluded); never collect them.
 """
 
-collect_ignore_glob = ["sas_forcex_fleeto/forcex_fleeto/doctype/*/test_*.py"]
+collect_ignore_glob = [
+    "sas_forcex_fleeto/forcex_fleeto/doctype/*/test_*.py",
+    "_dev/*",
+]
