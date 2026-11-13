@@ -1,0 +1,134 @@
+{
+ "charts": [],
+ "content": "[{\"id\": \"fxhea001\", \"type\": \"header\", \"data\": {\"text\": \"\\u003cspan class=\\\"h4\\\"\\u003e\\u003cb\\u003eForceX FLEETO \\u00b7 Service &amp; Warranty\\u003c/b\\u003e\\u003c/span\\u003e\", \"col\": 12}}, {\"id\": \"fxpar002\", \"type\": \"paragraph\", \"data\": {\"text\": \"Claims are raised and discussed in ForceX Helpdesk. Work moves left to right: Konnect data \\u2192 claim \\u2192 service visit or warranty inspection \\u2192 settlement \\u2192 customer feedback.\", \"col\": 12}}, {\"id\": \"fxnum003\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Open Warranty Claims\", \"col\": 3}}, {\"id\": \"fxnum004\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Open Service Tickets\", \"col\": 3}}, {\"id\": \"fxnum005\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Bookings Today\", \"col\": 3}}, {\"id\": \"fxnum006\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Feedback Calls Waiting\", \"col\": 3}}, {\"id\": \"fxspa010\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"fxhea011\", \"type\": \"header\", \"data\": {\"text\": \"\\u003cspan class=\\\"h5\\\"\\u003e\\u003cb\\u003eDaily work, in order\\u003c/b\\u003e\\u003c/span\\u003e\", \"col\": 12}}, {\"id\": \"fxsho020\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"1 \\u00b7 Konnect Imports\", \"col\": 4}}, {\"id\": \"fxsho021\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"2 \\u00b7 Vehicle Registry\", \"col\": 4}}, {\"id\": \"fxsho022\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"3 \\u00b7 Claims in Helpdesk\", \"col\": 4}}, {\"id\": \"fxsho023\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"4 \\u00b7 Technician Board\", \"col\": 4}}, {\"id\": \"fxsho024\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"5 \\u00b7 Job Cards\", \"col\": 4}}, {\"id\": \"fxsho025\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"6 \\u00b7 Material Receipts\", \"col\": 4}}, {\"id\": \"fxsho026\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"7 \\u00b7 Material Inspections\", \"col\": 4}}, {\"id\": \"fxsho027\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"8 \\u00b7 Supplier RMA\", \"col\": 4}}, {\"id\": \"fxsho028\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"9 \\u00b7 Feedback Desk\", \"col\": 4}}, {\"id\": \"fxspa040\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"fxhea041\", \"type\": \"header\", \"data\": {\"text\": \"\\u003cspan class=\\\"h5\\\"\\u003e\\u003cb\\u003eSetup (once)\\u003c/b\\u003e\\u003c/span\\u003e\", \"col\": 12}}, {\"id\": \"fxsho029\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Service Settings\", \"col\": 4}}, {\"id\": \"fxsho030\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"WhatsApp Settings\", \"col\": 4}}, {\"id\": \"fxsho031\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Feedback Questionnaires\", \"col\": 4}}]",
+ "creation": "2026-11-13 14:09:50.679495",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "bike",
+ "idx": 0,
+ "indicator_color": "orange",
+ "is_hidden": 0,
+ "label": "ForceX FLEETO",
+ "links": [],
+ "modified": "2026-11-13 15:00:00",
+ "modified_by": "Administrator",
+ "module": "ForceX FLEETO",
+ "name": "ForceX FLEETO",
+ "number_cards": [
+  {
+   "label": "Open Warranty Claims",
+   "number_card_name": "FX Open Warranty Claims"
+  },
+  {
+   "label": "Open Service Tickets",
+   "number_card_name": "FX Open Service Tickets"
+  },
+  {
+   "label": "Bookings Today",
+   "number_card_name": "FX Bookings Today"
+  },
+  {
+   "label": "Feedback Calls Waiting",
+   "number_card_name": "FX Feedback Calls Waiting"
+  }
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "restrict_to_domain": "",
+ "roles": [],
+ "sequence_id": 50.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "1 \u00b7 Konnect Imports",
+   "link_to": "FX Konnect Import Log",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "2 \u00b7 Vehicle Registry",
+   "link_to": "FX Vehicle Registry",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "",
+   "label": "3 \u00b7 Claims in Helpdesk",
+   "type": "URL",
+   "url": "/helpdesk/tickets"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "",
+   "label": "4 \u00b7 Technician Board",
+   "link_to": "fx-technician-board",
+   "type": "Page"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "5 \u00b7 Job Cards",
+   "link_to": "FX Job Card",
+   "type": "DocType"
+  },
+  {
+   "color": "Yellow",
+   "doc_view": "List",
+   "label": "6 \u00b7 Material Receipts",
+   "link_to": "FX Material Receipt",
+   "type": "DocType"
+  },
+  {
+   "color": "Yellow",
+   "doc_view": "List",
+   "label": "7 \u00b7 Material Inspections",
+   "link_to": "FX Material Inspection",
+   "type": "DocType"
+  },
+  {
+   "color": "Yellow",
+   "doc_view": "List",
+   "label": "8 \u00b7 Supplier RMA",
+   "link_to": "FX Supplier RMA",
+   "type": "DocType"
+  },
+  {
+   "color": "Purple",
+   "doc_view": "",
+   "label": "9 \u00b7 Feedback Desk",
+   "link_to": "fx-feedback-desk",
+   "type": "Page"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "",
+   "label": "Service Settings",
+   "link_to": "FX Service Settings",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "",
+   "label": "WhatsApp Settings",
+   "link_to": "FX WhatsApp Settings",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Feedback Questionnaires",
+   "link_to": "FX Feedback Questionnaire",
+   "type": "DocType"
+  }
+ ],
+ "standard": 1,
+ "title": "ForceX FLEETO",
+ "type": "Workspace"
+}

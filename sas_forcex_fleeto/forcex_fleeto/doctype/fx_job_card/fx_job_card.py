@@ -16,12 +16,15 @@ from sas_forcex_fleeto.forcex_fleeto.utils import move_ticket
 
 
 class FXJobCard(Document):
+    """Technician's visit record. Submitting it closes the booking and moves the ticket on."""
+
     def validate(self):
         if self.arrival_time and self.departure_time and get_datetime(self.departure_time) <= get_datetime(self.arrival_time):
             frappe.throw(_("Departure must be after arrival"))
 
     def before_submit(self):
         # Signatures + GPS are the proof-of-visit; refuse to submit without them.
+        """Proof of visit: both signatures, GPS arrival and the odometer photo are required to submit."""
         missing = [label for field, label in (
             ("customer_signature", _("Dealer / Customer Signature")),
             ("technician_signature", _("Technician Signature")),

@@ -40,16 +40,24 @@ class CreditPair:
 
 
 def pair_supplier_credit(supplier_credit: float, dealer_invoiced_value: float,
-                         policy: str = "pass_through", supplier_cn_ref: str | None = "N/A") -> CreditPair:
+                         policy: str = "pass_through", *, supplier_cn_ref: str | None) -> CreditPair:
     """Lithium lane: supplier credits FLEETO -> FLEETO credits the dealer.
 
     pass_through  dealer gets what the supplier paid (capped at dealer invoice)
     full_refund   dealer always gets the full invoice; FLEETO absorbs the gap
+
+    The supplier's credit note number is required (no default), so the dealer is
+    never credited on a promise. Both amounts must be positive: a 0.00 credit note
+    is always a data-entry mistake.
     """
     if not supplier_cn_ref:
         raise SettlementError("Supplier credit note reference is required before crediting the dealer")
-    supplier_credit = _r(supplier_credit)
-    dealer_invoiced_value = _r(dealer_invoiced_value)
+    supplier_credit = _r(supplier_credit or 0)
+    dealer_invoiced_value = _r(dealer_invoiced_value or 0)
+    if supplier_credit <= 0:
+        raise SettlementError("Enter the amount the supplier credited")
+    if dealer_invoiced_value <= 0:
+        raise SettlementError("Dealer invoiced value must be greater than zero")
     if policy == "full_refund":
         dealer = dealer_invoiced_value
     elif policy == "pass_through":

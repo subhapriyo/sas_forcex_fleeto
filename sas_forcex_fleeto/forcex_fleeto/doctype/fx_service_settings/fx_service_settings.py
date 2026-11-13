@@ -10,8 +10,11 @@ from sas_forcex_fleeto.forcex_fleeto.services.constants import ComponentType
 
 
 class FXServiceSettings(Document):
+    """All tunable FLEETO rules in one place: Konnect, warranty periods, technicians, credit policy."""
+
     def validate(self):
         # Battery type map must be JSON {code: ComponentType}
+        """Catch setup mistakes early: bad battery map JSON, unknown component types, duplicate or non-positive warranty policies."""
         try:
             mapping = json.loads(self.battery_type_map or "{}")
         except ValueError:

@@ -61,6 +61,33 @@ def is_read_only(v: QuestionnaireVersion) -> bool:
     return v.response_count > 0
 
 
+# What an answered version may not change, and which parts of each question matter.
+LOCKED_FIELDS = ("questions", "call_after_days", "max_attempts", "effective_from")
+QUESTION_KEYS = ("question", "answer_type", "mandatory", "active", "is_recommend_question")
+
+
+def locked_changes(before: dict, after: dict) -> list[str]:
+    """Locked fields whose CONTENT differs between two snapshots of a questionnaire.
+
+    Values are normalised first (7 == "7", 1 == True), so re-saving an unchanged
+    form never counts as an edit, while rewording a question always does.
+    """
+    def norm(v):
+        if isinstance(v, bool):
+            return str(int(v))
+        return "" if v is None else str(v).strip()
+
+    def rows(qs):
+        return [tuple(norm(q.get(k)) for k in QUESTION_KEYS) for q in (qs or [])]
+
+    changed = []
+    for f in LOCKED_FIELDS:
+        same = rows(before.get(f)) == rows(after.get(f)) if f == "questions" else norm(before.get(f)) == norm(after.get(f))
+        if not same:
+            changed.append(f)
+    return changed
+
+
 # ==========================================================================
 # Queue (Screen 7)
 # ==========================================================================
@@ -155,6 +182,7 @@ def missing_mandatory(questions: list[Question], answers: dict) -> list[int]:
 
 
 def validate_answers(questions: list[Question], answers: dict) -> None:
+    """Required answers present, star ratings 1-5, choices from the allowed list."""
     missing = missing_mandatory(questions, answers)
     if missing:
         raise FeedbackError(f"Please answer mandatory question(s): {missing}")

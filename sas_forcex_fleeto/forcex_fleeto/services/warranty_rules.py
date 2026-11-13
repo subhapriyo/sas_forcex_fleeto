@@ -148,8 +148,13 @@ _ALLOWED: dict[WarrantyRoute, set[A]] = {
 }
 
 
-def default_action(component_type: str, finding: str) -> A:
-    return _DEFAULTS[route_for(component_type)][finding]
+def default_action(component_type: str, finding: str | None) -> A:
+    """The settlement the inspector's dropdown starts on. ValueError (shown as a clean
+    message by utils.business_rules) when the finding is missing or unknown."""
+    try:
+        return _DEFAULTS[route_for(component_type)][finding]
+    except KeyError:
+        raise ValueError("Select the inspection finding first (Found OK, Repairable or Irreparable)") from None
 
 
 def validate_settlement(component_type: str, finding: str, action: str, *,

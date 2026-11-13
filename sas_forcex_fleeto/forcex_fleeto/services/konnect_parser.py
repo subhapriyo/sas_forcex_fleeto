@@ -269,6 +269,7 @@ def _map_header(header: list[str]) -> dict[str, int]:
 
 
 def _parse_one(row_no: int, values: list, col: dict[str, int], btmap: dict, strict_vin: bool = True) -> ParsedRow:
+    """Turn one Konnect report row into a ParsedRow, collecting row-level errors (skip) and warnings (import anyway)."""
     def get(name):
         i = col.get(name)
         return values[i] if i is not None and i < len(values) else None

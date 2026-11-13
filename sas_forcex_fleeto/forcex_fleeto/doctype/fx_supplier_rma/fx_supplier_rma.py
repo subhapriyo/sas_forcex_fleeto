@@ -15,7 +15,10 @@ from sas_forcex_fleeto.forcex_fleeto.utils import business_rules, move_ticket, s
 
 
 class FXSupplierRMA(Document):
+    """A lithium part sent back to its supplier, tracked until it is repaired or credited."""
+
     def validate(self):
+        """When the supplier credits us, work out the dealer's credit (services/settlement.pair_supplier_credit)."""
         if self.status == "Supplier Credited":
             with business_rules("Credit pairing failed"):
                 pair = settlement.pair_supplier_credit(
@@ -26,6 +29,7 @@ class FXSupplierRMA(Document):
             self.dealer_credit, self.margin_absorbed = pair.dealer_credit, pair.margin_absorbed
 
     def on_update(self):
+        """Each status change moves the ticket along; a supplier credit can also raise the paired dealer credit note."""
         before = self.get_doc_before_save()
         if not before or before.status == self.status:
             return  # only react to status *changes*

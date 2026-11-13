@@ -29,7 +29,7 @@ from ..services.constants import (
 )
 
 MODULE = "ForceX FLEETO"
-MODIFIED = "2026-11-13 14:30:00.000000"   # bump when you change a spec, or migrate skips it
+MODIFIED = "2026-11-13 15:00:00.000000"   # bump when you change a spec, or migrate skips it
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -105,6 +105,10 @@ SPECS["FX Service Settings"] = dict(issingle=1, fields=[
     f("strict_vin", "Check", "Warn on non-VIN chassis numbers", default="1"),
     f("battery_type_map", "Code", options="JSON",
       default='{"LED": "Lead-Acid Battery", "LI": "Lithium-Ion Battery"}'),
+    sec("Technicians"),
+    f("technician_designations", "Small Text", "Technician Designations", default="Field Technician\nFactory Engineer",
+      description="One Designation per line. Active Employees with these designations appear on the Technician Board. "
+                  "Blank = every active Employee."),
     sec("Warranty"),
     f("warranty_start_basis", "Select", options="Invoice Date\nKonnect Invoice Date", default="Invoice Date"),
     f("warranty_policies", "Table", options="FX Warranty Policy"),

@@ -61,3 +61,41 @@ class TestBooking(IntegrationTestCase):
         b.status = "Cancelled"
         b.save()
         book(tech, "14:30:00", "16:30:00").insert()
+
+
+class TestTechnicianBoard(IntegrationTestCase):
+    """api/technician_board: the board reads bookings; book_slot keeps the conflict guard."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        if not site_company():
+            raise unittest.SkipTest("No Company on this site; create one (setup wizard) to run booking tests")
+
+    def setUp(self):
+        from sas_forcex_fleeto.forcex_fleeto.api import technician_board as tb
+        self.tb = tb
+        # The test technician has no Designation, so list every active Employee.
+        frappe.db.set_single_value("FX Service Settings", "technician_designations", "")
+        frappe.clear_document_cache("FX Service Settings", "FX Service Settings")
+        self.tech = technician()
+        frappe.db.delete("FX Technician Booking", {"technician": self.tech, "booking_date": nowdate()})
+
+    def row(self, board):
+        return next(r for r in board["rows"] if r["technician"] == self.tech)
+
+    def test_board_marks_blocked_slot_busy_and_others_free(self):
+        self.tb.book_slot(self.tech, nowdate(), "09:00:00", "11:00:00", status="Blocked")
+        cells = self.row(self.tb.get_board(nowdate()))["cells"]
+        self.assertFalse(cells[0]["free"])
+        self.assertEqual(cells[0]["bookings"][0]["status"], "Blocked")
+        self.assertTrue(all(c["free"] for c in cells[1:]))
+
+    def test_book_slot_still_refuses_double_booking(self):
+        self.tb.book_slot(self.tech, nowdate(), "09:00:00", "11:00:00", status="Blocked")
+        with self.assertRaises(frappe.ValidationError):
+            self.tb.book_slot(self.tech, nowdate(), "10:00:00", "12:00:00", status="Blocked")
+
+    def test_job_booking_needs_a_ticket(self):
+        with self.assertRaises(frappe.ValidationError):
+            self.tb.book_slot(self.tech, nowdate(), "14:30:00", "16:30:00", status="Assigned")

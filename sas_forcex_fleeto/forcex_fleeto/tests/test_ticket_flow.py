@@ -67,5 +67,38 @@ class TestStatusForWarrantyCheck(unittest.TestCase):
         self.assertEqual(tf.after_material_receipt(is_in_warranty=False, wants_goodwill=False), S.REJECTED)
 
 
+class TestNewTickets(unittest.TestCase):
+    """B2: a new ticket enters the flow at the start, never part-way through."""
+
+    def test_new_ticket_may_start_as_draft_or_open(self):
+        tf.assert_transition(T.WARRANTY, None, S.DRAFT)
+        tf.assert_transition(T.SERVICE, None, S.OPEN)
+
+    def test_new_ticket_cannot_start_mid_flow(self):
+        for stage in (S.CLOSED, S.UNDER_INSPECTION, S.TECH_ASSIGNED):
+            with self.assertRaises(tf.InvalidTransition):
+                tf.assert_transition(T.WARRANTY, None, stage)
+
+
+class TestWarrantyGate(unittest.TestCase):
+    """B1: inspection is only reached by a claim in warranty, or with goodwill approved."""
+
+    def test_in_warranty_claim_goes_to_inspection(self):
+        tf.check_warranty_gate(S.MATERIAL_RECEIVED, S.UNDER_INSPECTION, in_warranty=True, may_approve_goodwill=False)
+
+    def test_out_of_warranty_claim_cannot_skip_goodwill(self):
+        with self.assertRaises(tf.InvalidTransition):
+            tf.check_warranty_gate(S.MATERIAL_RECEIVED, S.UNDER_INSPECTION, in_warranty=False, may_approve_goodwill=True)
+
+    def test_only_an_approver_can_release_goodwill(self):
+        with self.assertRaises(tf.InvalidTransition):
+            tf.check_warranty_gate(S.GOODWILL_PENDING, S.UNDER_INSPECTION, in_warranty=False, may_approve_goodwill=False)
+        tf.check_warranty_gate(S.GOODWILL_PENDING, S.UNDER_INSPECTION, in_warranty=False, may_approve_goodwill=True)
+
+    def test_other_moves_are_not_affected(self):
+        tf.check_warranty_gate(S.MATERIAL_RECEIVED, S.REJECTED, in_warranty=False, may_approve_goodwill=False)
+        tf.check_warranty_gate(S.OPEN, S.MATERIAL_RECEIVED, in_warranty=False, may_approve_goodwill=False)
+
+
 if __name__ == "__main__":
     unittest.main()

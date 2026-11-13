@@ -67,6 +67,7 @@ def grant_bulk_import():
 
 
 def after_install():
+    """Runs after install and after every migrate: custom fields, Helpdesk setup, import rights, settings defaults."""
     create_custom_fields(CUSTOM_FIELDS, update=True)
     from .integrations import helpdesk
 
@@ -80,6 +81,28 @@ def after_install():
                     if x["fieldname"] == "konnect_inbound_endpoint")
     if frappe.db.get_single_value("FX Service Settings", "konnect_inbound_endpoint") != endpoint:
         frappe.db.set_single_value("FX Service Settings", "konnect_inbound_endpoint", endpoint)
+
+    restore_workspace_file()
+
+
+LANDING_PAGE = "ForceX FLEETO"
+
+
+def restore_workspace_file():
+    """Developer-mode benches only: put the landing page's JSON back in the app.
+
+    When migrate replaces a changed standard Workspace it deletes the old record, and
+    Workspace.after_delete removes the page's folder from the app (frappe v16,
+    desk/doctype/workspace/workspace.py). The new record is not written back, so the
+    next commit would silently drop the landing page. Re-export it from the database.
+    """
+    if not frappe.conf.developer_mode or not frappe.db.exists("Workspace", LANDING_PAGE):
+        return
+    import os
+
+    path = frappe.get_module_path("ForceX FLEETO", "workspace", "forcex_fleeto", "forcex_fleeto.json")
+    if not os.path.exists(path):
+        frappe.get_doc("Workspace", LANDING_PAGE).export_workspace()
 
 
 after_migrate = after_install

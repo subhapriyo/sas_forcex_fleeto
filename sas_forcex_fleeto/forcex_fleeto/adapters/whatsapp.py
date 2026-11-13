@@ -93,6 +93,7 @@ def _deliver(mobile, message, event=None, params=None) -> str:
 
 
 def _post_cloud_api(s, payload) -> str:
+    """POST one message to the Meta Cloud API; returns Meta's message id or raises SendError with Meta's own reason."""
     import requests
 
     token = s.get_password("access_token", raise_exception=False)

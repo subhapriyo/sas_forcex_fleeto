@@ -24,6 +24,8 @@ from sas_forcex_fleeto.forcex_fleeto.utils import (
 
 
 class FXFeedbackCall(Document):
+    """One customer call in the feedback queue. Status only changes through submit_outcome()."""
+
     def _questions(self) -> list[feedback.Question]:
         q = frappe.get_cached_doc("FX Feedback Questionnaire", self.questionnaire)
         return [feedback.Question(r.idx, r.question, r.answer_type, bool(r.mandatory), bool(r.is_recommend_question))
@@ -39,6 +41,7 @@ class FXFeedbackCall(Document):
 
     @frappe.whitelist()
     def submit_outcome(self, outcome: str, answers: str | dict | None = None, callback_at: str | None = None):
+        """Record one call outcome. All rules come from services/feedback: required answers, retry limit, hold time, detractor flag."""
         self.check_permission("write")
         q_doc = frappe.get_cached_doc("FX Feedback Questionnaire", self.questionnaire)
         call = feedback.QueuedCall(self.invoice_no, self.invoice_date, self.status, self.attempts or 0,
@@ -64,6 +67,7 @@ class FXFeedbackCall(Document):
         return self.status
 
     def _after_completed(self, q_doc):
+        """After a completed call: queue the WhatsApp thank-you and alert the Warranty Service Head about a detractor."""
         with business_rules("WhatsApp template error"):
             msg = feedback.render_message(q_doc.whatsapp_template, {
                 "customer_name": self.customer_name, "invoice_no": self.invoice_no})

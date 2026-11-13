@@ -28,22 +28,30 @@ class TestCreditNoteAmount(unittest.TestCase):
 
 class TestSupplierPairing(unittest.TestCase):
     def test_pass_through_matches_supplier_credit(self):
-        pair = st.pair_supplier_credit(supplier_credit=24000, dealer_invoiced_value=26000)
+        pair = st.pair_supplier_credit(supplier_credit=24000, dealer_invoiced_value=26000, supplier_cn_ref="SCN-1")
         self.assertEqual(pair.dealer_credit, 24000)
         self.assertEqual(pair.margin_absorbed, 0)
 
     def test_dealer_credit_is_capped_at_dealer_invoice(self):
-        pair = st.pair_supplier_credit(supplier_credit=30000, dealer_invoiced_value=26000)
+        pair = st.pair_supplier_credit(supplier_credit=30000, dealer_invoiced_value=26000, supplier_cn_ref="SCN-1")
         self.assertEqual(pair.dealer_credit, 26000)
 
     def test_full_refund_policy_absorbs_the_gap(self):
-        pair = st.pair_supplier_credit(supplier_credit=20000, dealer_invoiced_value=26000, policy="full_refund")
+        pair = st.pair_supplier_credit(supplier_credit=20000, dealer_invoiced_value=26000, policy="full_refund",
+                                       supplier_cn_ref="SCN-1")
         self.assertEqual(pair.dealer_credit, 26000)
         self.assertEqual(pair.margin_absorbed, 6000)
 
     def test_supplier_credit_ref_required(self):
-        with self.assertRaises(st.SettlementError):
-            st.pair_supplier_credit(supplier_credit=24000, dealer_invoiced_value=26000, supplier_cn_ref="")
+        for ref in ("", None):
+            with self.assertRaises(st.SettlementError):
+                st.pair_supplier_credit(supplier_credit=24000, dealer_invoiced_value=26000, supplier_cn_ref=ref)
+
+    def test_zero_supplier_credit_never_makes_a_zero_credit_note(self):
+        """B6: 'Supplier Credited' with no amount must stop, not post a 0.00 dealer credit note."""
+        for supplier, dealer in ((0, 26000), (24000, 0)):
+            with self.assertRaises(st.SettlementError):
+                st.pair_supplier_credit(supplier_credit=supplier, dealer_invoiced_value=dealer, supplier_cn_ref="SCN-1")
 
 
 if __name__ == "__main__":

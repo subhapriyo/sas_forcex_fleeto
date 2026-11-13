@@ -4,7 +4,7 @@
  "module": "ForceX FLEETO",
  "custom": 0,
  "engine": "InnoDB",
- "modified": "2026-11-13 14:30:00.000000",
+ "modified": "2026-11-13 15:00:00.000000",
  "owner": "Administrator",
  "fields": [
   {
@@ -58,10 +58,24 @@
    "idx": 7
   },
   {
+   "fieldname": "sec_technicians",
+   "fieldtype": "Section Break",
+   "label": "Technicians",
+   "idx": 8
+  },
+  {
+   "fieldname": "technician_designations",
+   "fieldtype": "Small Text",
+   "label": "Technician Designations",
+   "default": "Field Technician\nFactory Engineer",
+   "description": "One Designation per line. Active Employees with these designations appear on the Technician Board. Blank = every active Employee.",
+   "idx": 9
+  },
+  {
    "fieldname": "sec_warranty",
    "fieldtype": "Section Break",
    "label": "Warranty",
-   "idx": 8
+   "idx": 10
   },
   {
    "fieldname": "warranty_start_basis",
@@ -69,20 +83,20 @@
    "label": "Warranty Start Basis",
    "options": "Invoice Date\nKonnect Invoice Date",
    "default": "Invoice Date",
-   "idx": 9
+   "idx": 11
   },
   {
    "fieldname": "warranty_policies",
    "fieldtype": "Table",
    "label": "Warranty Policies",
    "options": "FX Warranty Policy",
-   "idx": 10
+   "idx": 12
   },
   {
    "fieldname": "replace_threshold",
    "fieldtype": "Currency",
    "label": "Replacement needs MD approval above",
-   "idx": 11
+   "idx": 13
   },
   {
    "fieldname": "dealer_credit_policy",
@@ -90,7 +104,7 @@
    "label": "Dealer Credit Policy",
    "options": "pass_through\nfull_refund",
    "default": "pass_through",
-   "idx": 12
+   "idx": 14
   },
   {
    "fieldname": "credit_note_item",
@@ -98,20 +112,20 @@
    "label": "Credit Note Item",
    "options": "Item",
    "description": "Non-stock service item used on credit notes",
-   "idx": 13
+   "idx": 15
   },
   {
    "fieldname": "sec_notifications",
    "fieldtype": "Section Break",
    "label": "Notifications",
-   "idx": 14
+   "idx": 16
   },
   {
    "fieldname": "whatsapp_sender",
    "fieldtype": "Data",
    "label": "Whatsapp Sender",
    "description": "Dotted path of a send(mobile, message) function; blank = log only",
-   "idx": 15
+   "idx": 17
   },
   {
    "fieldname": "detractor_alert_role",
@@ -119,7 +133,7 @@
    "label": "Detractor Alert Role",
    "options": "Role",
    "default": "FX Warranty Service Head",
-   "idx": 16
+   "idx": 18
   }
  ],
  "permissions": [

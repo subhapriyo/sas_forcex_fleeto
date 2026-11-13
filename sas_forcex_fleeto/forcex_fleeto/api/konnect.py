@@ -106,6 +106,7 @@ def test_connection() -> dict:
 # Background job
 # --------------------------------------------------------------------------
 def run_import(log_name: str) -> None:
+    """Background job: parse the queued Konnect rows, upsert each good row into FX Vehicle Registry and record every error and warning on the import log."""
     log = frappe.get_doc("FX Konnect Import Log", log_name)
     log.db_set("status", "Running", commit=True)
     try:
@@ -138,6 +139,7 @@ def run_import(log_name: str) -> None:
 
 
 def _load_rows(log) -> tuple[list, list]:
+    """Rows from the uploaded Excel file, or from the JSON payload Konnect pushed."""
     if log.source == "API":
         payload = json.loads(log.details or "{}").get("payload") or []
         header = list(payload[0].keys()) if payload else list(konnect_parser.REQUIRED_COLUMNS)

@@ -14,10 +14,10 @@ from frappe.utils import getdate
 from sas_forcex_fleeto.forcex_fleeto.services import feedback
 from sas_forcex_fleeto.forcex_fleeto.utils import business_rules
 
-LOCKED_FIELDS = ("questions", "call_after_days", "max_attempts", "effective_from")
-
 
 class FXFeedbackQuestionnaire(Document):
+    """A dated version of the feedback questions. Answered versions are frozen; changes go into a new version."""
+
     def validate(self):
         if not [q for q in self.questions if q.active]:
             frappe.throw(_("Add at least one active question"))
@@ -30,6 +30,7 @@ class FXFeedbackQuestionnaire(Document):
 
     @frappe.whitelist()
     def copy_as_new_version(self, effective_from: str) -> str:
+        """Start the next version as a Draft copy, so answered questions stay exactly as they were asked."""
         new = frappe.copy_doc(self)
         new.update({"code": f"{self.code.rsplit('-', 1)[0]}-{(self.version or 1) + 1:02d}",
                     "version": (self.version or 1) + 1, "status": "Draft",
@@ -42,15 +43,18 @@ class FXFeedbackQuestionnaire(Document):
         return frappe.db.count("FX Feedback Call", {"questionnaire": self.name, "status": "Completed"})
 
     def _block_edits_when_answered(self):
+        """Stop edits to what was asked once any call on this version is completed."""
         if self.is_new() or not self._response_count():
             return
         before = self.get_doc_before_save()
-        changed = [f for f in LOCKED_FIELDS if str(before.get(f)) != str(self.get(f))] if before else []
+        # Compare content, not objects: rewording a question counts, re-saving does not.
+        changed = feedback.locked_changes(before, self) if before else []
         if changed:
             frappe.throw(_("This version already has responses; use 'Copy as New Version'. Changed: {0}")
                          .format(", ".join(changed)), title=_("Read-only version"))
 
     def _close_previous_version(self):
+        """Activating this version ends the previous active one the day before this one starts."""
         others = frappe.get_all("FX Feedback Questionnaire",
                                 filters={"status": "Active", "name": ["!=", self.name]},
                                 fields=["name", "effective_from"])
@@ -63,6 +67,7 @@ class FXFeedbackQuestionnaire(Document):
 
 
 def get_effective(on_date) -> "FXFeedbackQuestionnaire":
+    """The questionnaire version in force on a date (the rules are in services/feedback.effective_version)."""
     rows = frappe.get_all("FX Feedback Questionnaire", filters={"status": ["in", ["Active", "Superseded"]]},
                           fields=["name", "effective_from", "effective_to", "status"])
     versions = [feedback.QuestionnaireVersion(r.name, getdate(r.effective_from),

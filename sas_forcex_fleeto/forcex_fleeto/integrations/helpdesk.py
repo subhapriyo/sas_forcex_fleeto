@@ -50,7 +50,7 @@ CUSTOM_FIELDS = {"HD Ticket": [
     _f("fx_section", "Section Break", "FLEETO Service & Warranty", "description"),
     _f("fx_stage", "Select", "Stage", "fx_section", options="\n".join(Status.values()), default=Status.DRAFT,
        in_standard_filter=1, in_list_view=1, read_only=1),
-    _f("fx_claim_for", "Select", "Claim For", "fx_stage", options="\n".join([""] + ClaimFor.values())),
+    _f("fx_claim_for", "Select", "Claim For", "fx_stage", options="\n".join(["", *ClaimFor.values()])),
     _f("fx_business_partner", "Link", "Dealer / Distributor", "fx_claim_for", options="Customer"),
     _f("fx_vehicle", "Link", "Vehicle", "fx_business_partner", options="FX Vehicle Registry"),
     _f("fx_odometer_km", "Int", "Odometer (km)", "fx_vehicle"),
@@ -138,13 +138,26 @@ def validate_hd_ticket(doc, method=None):
     before = doc.get_doc_before_save()
     old = before.get("fx_stage") if before else None
 
-    _match_and_warranty(doc)
+    _match_and_warranty(doc)  # refresh warranty status first: the gate below depends on it
     with business_rules("Invalid stage change"):
         ticket_flow.assert_transition(t, old, doc.fx_stage)
+        ticket_flow.check_warranty_gate(old, doc.fx_stage, in_warranty=_in_warranty(doc),
+                                        may_approve_goodwill=_may_approve_goodwill())
+    if old == Status.GOODWILL_PENDING and doc.fx_stage == Status.UNDER_INSPECTION:
+        doc.fx_goodwill_approved_by = frappe.session.user  # audit: who released the goodwill claim
     _evidence_gate(doc, t, old)
 
 
+def _in_warranty(doc) -> bool:
+    return doc.get("fx_warranty_status") == "Active"
+
+
+def _may_approve_goodwill() -> bool:
+    return GOODWILL_APPROVER_ROLE in frappe.get_roles()
+
+
 def _registry_row(doc):
+    """The Konnect component row matching this ticket's vehicle and serial, if there is one."""
     if not (doc.get("fx_vehicle") and doc.get("fx_component_serial")):
         return None
     return frappe.db.get_value(
@@ -193,26 +206,42 @@ def _evidence_gate(doc, t, old):
 # ==========================================================================
 # Agent actions (Helpdesk header dropdown + Desk buttons)
 # ==========================================================================
+def next_stages_for(doc) -> list[str]:
+    """Stages the current user may move this ticket to now; these become the buttons.
+
+    Same rules as validate_hd_ticket, so a button is never offered that the save
+    would then refuse (e.g. "Under Inspection" for someone who cannot approve goodwill).
+    """
+    t = lane(doc)
+    if not t:
+        return []
+    current = doc.get("fx_stage") or Status.DRAFT
+    allowed = []
+    for stage in ticket_flow.next_statuses(t, current):
+        try:
+            ticket_flow.check_warranty_gate(current, stage, in_warranty=_in_warranty(doc),
+                                            may_approve_goodwill=_may_approve_goodwill())
+        except ticket_flow.InvalidTransition:
+            continue
+        allowed.append(stage)
+    return allowed
+
+
 @frappe.whitelist()
 def next_stages(ticket: str) -> list[str]:
     doc = frappe.get_doc("HD Ticket", ticket)
     doc.check_permission("read")
-    t = lane(doc)
-    if not t:
-        return []
-    stages = ticket_flow.next_statuses(t, doc.get("fx_stage") or Status.DRAFT)
-    # "Material Received" is reached via receive_material(), which also takes the warranty decision
-    return stages
+    return next_stages_for(doc)
 
 
 @frappe.whitelist()
 def set_stage(ticket: str, stage: str) -> str:
+    """Move a ticket one step. Every rule runs in validate_hd_ticket on save."""
+    if stage == Status.MATERIAL_RECEIVED:
+        # Receiving the part is also the warranty decision; never leave a claim parked here.
+        return receive_material(ticket)
     doc = frappe.get_doc("HD Ticket", ticket)
     doc.check_permission("write")
-    if doc.get("fx_stage") == Status.GOODWILL_PENDING and stage == Status.UNDER_INSPECTION:
-        if GOODWILL_APPROVER_ROLE not in frappe.get_roles():
-            frappe.throw(_("Only {0} can approve goodwill warranty").format(GOODWILL_APPROVER_ROLE))
-        doc.fx_goodwill_approved_by = frappe.session.user
     doc.fx_stage = stage
     doc.save()
     return doc.fx_stage

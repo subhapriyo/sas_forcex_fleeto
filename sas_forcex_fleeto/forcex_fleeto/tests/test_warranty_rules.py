@@ -117,5 +117,15 @@ class TestSettlementPolicy(unittest.TestCase):
         wr.validate_settlement(C.LITHIUM_BATTERY, F.FOUND_OK, A.REJECT)
 
 
+class TestDefaultActionMessages(unittest.TestCase):
+    """B7: a missing finding gets a plain message, not a KeyError traceback."""
+
+    def test_missing_or_unknown_finding_raises_value_error(self):
+        for finding in (None, "", "Smells odd"):
+            with self.assertRaises(ValueError) as e:
+                wr.default_action(C.LEAD_ACID_BATTERY, finding)
+            self.assertIn("finding", str(e.exception).lower())
+
+
 if __name__ == "__main__":
     unittest.main()

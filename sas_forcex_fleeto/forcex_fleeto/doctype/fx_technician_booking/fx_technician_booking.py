@@ -20,6 +20,8 @@ from sas_forcex_fleeto.forcex_fleeto.utils import as_time, business_rules, move_
 
 
 class FXTechnicianBooking(Document):
+    """A technician's time slot: a service visit (Assigned) or unavailable time (Blocked)."""
+
     def validate(self):
         with business_rules("Booking not possible"):
             scheduler.validate_booking(self._as_booking())
@@ -27,6 +29,7 @@ class FXTechnicianBooking(Document):
             self._prevent_double_booking()
 
     def on_update(self):
+        """A newly assigned booking moves the ticket to Technician Assigned and queues the WhatsApp alert."""
         before = self.get_doc_before_save()
         newly_assigned = self.status == "Assigned" and (not before or before.status != "Assigned")
         if newly_assigned and self.ticket:
@@ -43,11 +46,12 @@ class FXTechnicianBooking(Document):
         return scheduler.Booking(
             technician=self.technician, day=getdate(self.booking_date),
             start=as_time(self.from_time), end=as_time(self.to_time),
-            ticket=self.ticket or "", status=self.status,
+            ticket=self.ticket or "", status=self.status, name=self.name or "",
         )
 
     def _prevent_double_booking(self):
         # Layer 2: serialise all bookings for this technician.
+        """Lock the technician's row, then refuse any overlap with their other busy bookings that day."""
         frappe.db.get_value("Employee", self.technician, "name", for_update=True)
 
         rows = frappe.get_all(

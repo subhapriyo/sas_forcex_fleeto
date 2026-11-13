@@ -154,5 +154,30 @@ class TestWhatsAppTemplate(unittest.TestCase):
         self.assertIn("dealer", str(ctx.exception))
 
 
+class TestLockedChanges(unittest.TestCase):
+    """B5: an answered questionnaire version cannot change what was asked."""
+
+    def setUp(self):
+        q = {"question": "Rate our service", "answer_type": "Star rating (1-5)", "mandatory": 1,
+             "active": 1, "is_recommend_question": 0}
+        self.before = {"call_after_days": 7, "max_attempts": 3, "effective_from": "2026-10-01", "questions": [q]}
+
+    def changed(self, **edits):
+        after = {**self.before, **edits}
+        return fb.locked_changes(self.before, after)
+
+    def test_rewording_a_question_is_a_change(self):
+        q = {**self.before["questions"][0], "question": "Rate our product"}
+        self.assertEqual(self.changed(questions=[q]), ["questions"])
+
+    def test_settings_changes_are_listed_by_name(self):
+        self.assertEqual(self.changed(call_after_days=10, max_attempts=3), ["call_after_days"])
+
+    def test_identical_content_is_not_a_change(self):
+        # Same values, different object identity and number types: still the same version.
+        q = {**self.before["questions"][0], "mandatory": True}
+        self.assertEqual(self.changed(questions=[q], call_after_days="7"), [])
+
+
 if __name__ == "__main__":
     unittest.main()

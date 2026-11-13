@@ -113,3 +113,58 @@ class TestHelpdeskTicket(IntegrationTestCase):
         mir.insert()
         self.assertEqual((mir.settlement_action, mir.credit_note_amount, mir.original_invoice),
                          ("Issue Credit Note", 6500, "TINV-HD-1"))
+
+
+EXPIRED_CHASSIS, EXPIRED_SERIAL = "MD9TESTHD00000002", "BAT-HD-0002"
+
+
+def expired_ticket(**kw):
+    """A claim whose part ran out of warranty yesterday."""
+    vehicle()
+    if not frappe.db.exists("FX Vehicle Registry", EXPIRED_CHASSIS):
+        start = add_days(nowdate(), -400)
+        frappe.get_doc({"doctype": "FX Vehicle Registry", "chassis_no": EXPIRED_CHASSIS, "customer_name": "HD Old Rider",
+                        "mobile": "+919830000098", "konnect_invoice_no": "TINV-HD-2", "invoice_date": start,
+                        "components": [{"component_type": ComponentType.LEAD_ACID_BATTERY, "serial_no": EXPIRED_SERIAL,
+                                        "warranty_start": start, "warranty_end": add_days(nowdate(), -1)}]}).insert()
+    return ticket(fx_vehicle=EXPIRED_CHASSIS, fx_component_serial=EXPIRED_SERIAL, **EV, **kw)
+
+
+class TestWarrantyGate(IntegrationTestCase):
+    """Review fixes B1 + B2: the stage rules hold on every save path, not just one API."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        helpdesk.setup()
+
+    def test_new_ticket_cannot_start_mid_flow(self):
+        with self.assertRaises(frappe.ValidationError):
+            ticket(fx_stage=Status.CLOSED, **EV)
+
+    def test_material_received_button_takes_the_warranty_decision(self):
+        t = expired_ticket()
+        helpdesk.set_stage(t.name, Status.OPEN)
+        # The agent presses "Material Received"; an expired claim without goodwill is rejected.
+        self.assertEqual(helpdesk.set_stage(t.name, Status.MATERIAL_RECEIVED), Status.REJECTED)
+
+    def test_expired_claim_cannot_be_saved_into_inspection(self):
+        t = expired_ticket()
+        helpdesk.set_stage(t.name, Status.OPEN)
+        frappe.db.set_value("HD Ticket", t.name, "fx_stage", Status.MATERIAL_RECEIVED)  # stuck mid-way
+        t.reload()
+        t.fx_stage = Status.UNDER_INSPECTION  # e.g. edited in Desk or sent by another API client
+        with self.assertRaises(frappe.ValidationError):
+            t.save(ignore_permissions=True)
+
+    def test_goodwill_release_needs_the_approver_role(self):
+        t = expired_ticket(fx_goodwill_requested=1)
+        helpdesk.set_stage(t.name, Status.OPEN)
+        self.assertEqual(helpdesk.receive_material(t.name), Status.GOODWILL_PENDING)
+        frappe.set_user("hd.test@example.com")  # an ordinary user, not FX Operations Head
+        try:
+            self.assertNotIn(Status.UNDER_INSPECTION, helpdesk.next_stages_for(frappe.get_doc("HD Ticket", t.name)))
+        finally:
+            frappe.set_user("Administrator")
+        self.assertEqual(helpdesk.set_stage(t.name, Status.UNDER_INSPECTION), Status.UNDER_INSPECTION)
+        self.assertEqual(frappe.db.get_value("HD Ticket", t.name, "fx_goodwill_approved_by"), "Administrator")

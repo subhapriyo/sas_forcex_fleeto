@@ -2,14 +2,18 @@
 Ticket lifecycle = a small, explicit state machine.
 
 Why not Frappe's Workflow DocType?
-    Workflow is great for approval chains with roles, and we DO use it for
-    the Goodwill approval step (see docs). But the operational status here
-    changes from code (e.g. "MIR submitted" moves the ticket), and branching
-    depends on component type. Keeping the allowed moves in one Python dict
-    makes them testable and greppable.
+    The stage changes from code as well as from people (e.g. submitting an
+    inspection moves the ticket), and the branches depend on component type
+    and warranty status. Keeping the allowed moves in one Python dict makes
+    them testable and greppable.
+
+Three rules live here:
+    assert_transition()    is old -> new an allowed move on this lane?
+    check_warranty_gate()  inspection only for in-warranty claims, or with goodwill approved
+    after_material_receipt() which way the claim goes once the part arrives
 
 To change the flow: edit TRANSITIONS, then run tests/test_ticket_flow.py.
-The Desk form reads `next_statuses()` to show only valid action buttons.
+Helpdesk and the Desk form read `next_statuses()` to show only valid buttons.
 """
 
 from __future__ import annotations
@@ -52,6 +56,7 @@ TRANSITIONS: dict[str, dict[str, set[str]]] = {
 }
 
 TERMINAL = {S.CLOSED, S.REJECTED}
+START = {S.DRAFT, S.OPEN}   # a new ticket enters the flow here, never part-way through
 
 
 class InvalidTransition(Exception):
@@ -65,7 +70,11 @@ def next_statuses(ticket_type: str, current: str) -> list[str]:
 
 def assert_transition(ticket_type: str, old: str | None, new: str) -> None:
     """Raise InvalidTransition unless old -> new is allowed for this track."""
-    if old == new or old is None:  # unchanged, or brand-new document
+    if old is None:  # brand-new ticket
+        if new not in START:
+            raise InvalidTransition(f"A new {ticket_type} ticket starts as Draft or Open, not '{new}'")
+        return
+    if old == new:
         return
     lane = TRANSITIONS.get(ticket_type)
     if lane is None:
@@ -73,6 +82,21 @@ def assert_transition(ticket_type: str, old: str | None, new: str) -> None:
     if new not in lane.get(old, set()):
         allowed = ", ".join(next_statuses(ticket_type, old)) or "none (terminal)"
         raise InvalidTransition(f"{ticket_type} ticket cannot move from '{old}' to '{new}'. Allowed: {allowed}")
+
+
+def check_warranty_gate(old: str | None, new: str, *, in_warranty: bool, may_approve_goodwill: bool) -> None:
+    """Who may send a claim to inspection.
+
+    The move table allows Material Received -> Under Inspection, but only an
+    in-warranty claim may take it; an expired one must go through goodwill,
+    and only a goodwill approver may release it from there.
+    """
+    if new != S.UNDER_INSPECTION:
+        return
+    if old == S.MATERIAL_RECEIVED and not in_warranty:
+        raise InvalidTransition("This claim is out of warranty: request goodwill approval instead")
+    if old == S.GOODWILL_PENDING and not may_approve_goodwill:
+        raise InvalidTransition("Only a goodwill approver can send this claim to inspection")
 
 
 def after_material_receipt(is_in_warranty: bool, wants_goodwill: bool) -> str:

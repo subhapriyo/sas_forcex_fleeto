@@ -32,15 +32,17 @@ from sas_forcex_fleeto.forcex_fleeto.utils import business_rules, move_ticket, s
 
 
 class FXMaterialInspection(Document):
+    """The inspector's finding on a returned part, and the settlement it leads to."""
+
     def validate(self):
         # Konnect invoice of the vehicle on the ticket (HD Ticket -> FX Vehicle Registry)
+        """Pre-fill the settlement from the lane default, then enforce the MD rules (lead-acid never replaced, replacement threshold, scrap tag)."""
         if not self.original_invoice and self.ticket:
             vehicle = frappe.db.get_value("HD Ticket", self.ticket, "fx_vehicle")
             self.original_invoice = frappe.db.get_value("FX Vehicle Registry", vehicle, "konnect_invoice_no") if vehicle else None
-        if not self.settlement_action:
-            self.settlement_action = warranty_rules.default_action(self.component_type, self.finding)
-
         with business_rules("Settlement not allowed"):
+            if not self.settlement_action:  # pre-fill from the lane's default for this finding
+                self.settlement_action = warranty_rules.default_action(self.component_type, self.finding)
             warranty_rules.validate_settlement(
                 self.component_type, self.finding, self.settlement_action,
                 value=self.replacement_value or 0,
@@ -60,6 +62,7 @@ class FXMaterialInspection(Document):
             frappe.throw(_("Enter the Replacement Serial No"))
 
     def on_submit(self):
+        """Carry out the chosen settlement and move the ticket to the matching stage."""
         action = self.settlement_action
         ticket = self.ticket
 

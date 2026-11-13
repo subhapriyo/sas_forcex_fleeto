@@ -84,3 +84,64 @@ class TestFeedbackDesk(IntegrationTestCase):
         self.assertEqual(call.status, "Queued")
         call.submit_outcome("Not Reachable")
         self.assertEqual(call.status, "Unreachable")
+
+
+class TestFeedbackDeskPage(IntegrationTestCase):
+    """api/feedback_desk get_call / submit_call, as used by the Feedback Desk page."""
+
+    def setUp(self):
+        frappe.db.delete("FX Feedback Call", {"invoice_no": ["like", "INV-FB-%"]})
+        questionnaire()
+        vehicle("MD9FBTEST00000001", "INV-FB-OLD", 20)
+
+    def test_get_and_submit_call(self):
+        from sas_forcex_fleeto.forcex_fleeto.api.feedback_desk import get_call, submit_call
+        build_queue_isolated()
+        name = open_next_call()
+        c = get_call(name)
+        self.assertEqual(c["invoice_no"], "INV-FB-OLD")
+        self.assertEqual([a["answer_type"] for a in c["answers"]], ["Star rating (1-5)", "Yes / No / Maybe"])
+        r = submit_call(name, "Connected", json.dumps({"1": 5, "2": "Yes"}))
+        self.assertEqual(r["status"], "Completed")
+        self.assertEqual(r["is_detractor"], 0)
+
+
+class TestQuestionnaireLock(IntegrationTestCase):
+    """B5: once a version has answers, its questions cannot be reworded."""
+
+    def setUp(self):
+        frappe.db.delete("FX Feedback Call", {"invoice_no": ["like", "INV-FB-%"]})
+        questionnaire()
+        vehicle("MD9FBTEST00000001", "INV-FB-OLD", 20)
+
+    def test_rewording_an_answered_question_is_blocked(self):
+        build_queue_isolated()
+        call = frappe.get_doc("FX Feedback Call", open_next_call())
+        call.submit_outcome("Connected", json.dumps({"1": 4, "2": "Yes"}))
+        q = frappe.get_doc("FX Feedback Questionnaire", call.questionnaire)
+        q.questions[0].question = "Something else entirely?"
+        with self.assertRaises(frappe.ValidationError):
+            q.save()
+
+
+class TestQueueBeyondFirstRows(IntegrationTestCase):
+    """B4: calls on hold must not hide a due call further down the queue."""
+
+    def setUp(self):
+        frappe.db.delete("FX Feedback Call", {"invoice_no": ["like", "INV-FB-%"]})
+        questionnaire()
+
+    def test_due_call_found_behind_many_held_calls(self):
+        from frappe.utils import add_to_date, now_datetime
+
+        build_queue_isolated()  # parks every non-test open call
+        later = add_to_date(now_datetime(), hours=4)
+        for i in range(60):  # older than the due call, but all on hold for hours
+            frappe.get_doc({"doctype": "FX Feedback Call", "invoice_no": f"INV-FB-HOLD-{i:02d}",
+                            "invoice_date": add_days(nowdate(), -90), "status": "Call Back Later",
+                            "hold_until": later}).insert(ignore_permissions=True)
+        frappe.get_doc({"doctype": "FX Feedback Call", "invoice_no": "INV-FB-DUE",
+                        "invoice_date": add_days(nowdate(), -10), "status": "Queued"}).insert(ignore_permissions=True)
+        name = open_next_call()
+        self.assertIsNotNone(name, "queue looked empty although a call was due")
+        self.assertEqual(frappe.db.get_value("FX Feedback Call", name, "invoice_no"), "INV-FB-DUE")

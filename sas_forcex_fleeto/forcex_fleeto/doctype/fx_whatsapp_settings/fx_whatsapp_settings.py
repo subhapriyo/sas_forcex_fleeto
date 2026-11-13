@@ -11,7 +11,10 @@ from frappe.model.document import Document
 
 
 class FXWhatsAppSettings(Document):
+    """How FLEETO sends WhatsApp messages: provider, credentials and template names."""
+
     def validate(self):
+        """Keep the country code digits-only and check a custom sender function really exists."""
         self.default_country_code = re.sub(r"\D", "", self.default_country_code or "") or "91"
         if self.provider == "Custom Function" and self.custom_sender:
             try:
