@@ -1,0 +1,20 @@
+{
+ "doctype": "Number Card",
+ "name": "FX Feedback Calls Waiting",
+ "label": "Feedback Calls Waiting",
+ "type": "Document Type",
+ "document_type": "FX Feedback Call",
+ "function": "Count",
+ "filters_json": "[[\"FX Feedback Call\", \"status\", \"in\", [\"Queued\", \"Call Back Later\"]]]",
+ "is_public": 1,
+ "is_standard": 1,
+ "module": "ForceX FLEETO",
+ "color": "Purple",
+ "show_percentage_stats": 0,
+ "creation": "2026-11-13 14:00:00.000000",
+ "modified": "2026-11-13 14:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "docstatus": 0,
+ "idx": 0
+}

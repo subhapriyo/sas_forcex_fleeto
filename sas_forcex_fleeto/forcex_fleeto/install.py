@@ -43,11 +43,43 @@ before_install = ensure_roles
 before_migrate = ensure_roles
 
 
+# Bulk upload (Data Import) on STANDARD DocTypes for the two head roles.
+# FLEETO DocTypes carry their import rights in their own JSON (tools/doctype_specs.py).
+BULK_IMPORTERS = ["FX Warranty Service Head", "FX Operations Head"]
+BULK_IMPORT_RIGHTS = {
+    "Customer": ("read", "write", "create", "report", "import"),
+    "HD Ticket": ("read", "write", "create", "report", "import"),
+    "Data Import": ("read", "write", "create"),  # the import tool itself
+}
+
+
+def grant_bulk_import():
+    """Idempotent. Adds Custom DocPerm rows; Frappe copies the standard rules first,
+    so existing access on these DocTypes is kept."""
+    from frappe.permissions import add_permission, update_permission_property
+
+    for doctype, rights in BULK_IMPORT_RIGHTS.items():
+        for role in BULK_IMPORTERS:
+            if not frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": 0, "if_owner": 0}):
+                add_permission(doctype, role, 0)
+            for ptype in rights:
+                update_permission_property(doctype, role, 0, ptype, 1, validate=False)
+
+
 def after_install():
     create_custom_fields(CUSTOM_FIELDS, update=True)
     from .integrations import helpdesk
 
     helpdesk.setup()  # FLEETO tickets live in ForceX Helpdesk (HD Ticket)
+    grant_bulk_import()
+
+    # Read-only field on a Single: defaults are not written for existing records
+    from .tools.doctype_specs import SPECS
+
+    endpoint = next(x["default"] for x in SPECS["FX Service Settings"]["fields"]
+                    if x["fieldname"] == "konnect_inbound_endpoint")
+    if frappe.db.get_single_value("FX Service Settings", "konnect_inbound_endpoint") != endpoint:
+        frappe.db.set_single_value("FX Service Settings", "konnect_inbound_endpoint", endpoint)
 
 
 after_migrate = after_install

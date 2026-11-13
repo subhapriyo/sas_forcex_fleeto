@@ -4,7 +4,7 @@
  "module": "ForceX FLEETO",
  "custom": 0,
  "engine": "InnoDB",
- "modified": "2026-11-05 17:00:00.000000",
+ "modified": "2026-11-13 14:30:00.000000",
  "owner": "Administrator",
  "fields": [
   {
@@ -124,21 +124,24 @@
    "submit": 0,
    "cancel": 0,
    "report": 1,
-   "export": 1
+   "export": 1,
+   "import": 1
   },
   {
    "role": "FX Warranty Service Head",
    "read": 1,
    "write": 1,
    "create": 1,
-   "report": 1
+   "report": 1,
+   "import": 1
   },
   {
    "role": "FX Operations Head",
    "read": 1,
    "write": 1,
    "create": 1,
-   "report": 1
+   "report": 1,
+   "import": 1
   },
   {
    "role": "FX Spare Store",
@@ -164,5 +167,6 @@
   }
  ],
  "autoname": "naming_series:",
- "track_changes": 1
+ "track_changes": 1,
+ "allow_import": 1
 }

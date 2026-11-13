@@ -56,11 +56,50 @@ def push_invoices(rows: str | list) -> str:
     body {"rows": [{"Konnect Invoice Number": ..., "Chassis": ..., ...}]}
     Auth with the API key/secret of an integration user that has an import role."""
     _require_import_role()
+    if not settings().konnect_enabled:
+        frappe.throw(_("Konnect API is disabled in FX Service Settings"), frappe.ValidationError)
     rows = json.loads(rows) if isinstance(rows, str) else rows
     log = frappe.get_doc({"doctype": "FX Konnect Import Log", "source": "API", "status": "Queued",
                           "details": json.dumps({"payload": rows})}).insert()
     frappe.enqueue(run_import, queue="long", timeout=1800, log_name=log.name, enqueue_after_commit=True)
     return log.name
+
+
+@frappe.whitelist()
+def test_connection() -> dict:
+    """Settings > Test Konnect Connection. Read-only checks, nothing is imported.
+
+    inbound:  can Konnect push to us? (switch on + an API-key user with an import role)
+    outbound: is the Konnect Base URL reachable? Only reachability is checked: Konnect's
+              own auth scheme and endpoints are not specified yet, so the API key is not sent.
+    """
+    _require_import_role()
+    s = settings()
+    checks = []
+
+    checks.append({"check": "Konnect API enabled", "ok": bool(s.konnect_enabled)})
+
+    users = frappe.get_all("Has Role", filters={"role": ["in", list(IMPORT_ROLES - {"System Manager"})],
+                                                 "parenttype": "User"}, pluck="parent", distinct=True)
+    api_users = frappe.get_all("User", filters={"name": ["in", users or [""]], "enabled": 1,
+                                                "api_key": ["is", "set"]}, pluck="name")
+    checks.append({"check": "Integration user with API key and import role", "ok": bool(api_users),
+                   "detail": ", ".join(api_users) or _("Create one and generate its API key")})
+
+    base = (s.konnect_base_url or "").strip()
+    if not base:
+        checks.append({"check": "Konnect Base URL reachable", "ok": False, "detail": _("Base URL not set")})
+    else:
+        import requests
+
+        try:
+            r = requests.get(base, timeout=10)
+            checks.append({"check": "Konnect Base URL reachable", "ok": r.status_code < 500,
+                           "detail": f"HTTP {r.status_code}"})
+        except requests.RequestException as e:
+            checks.append({"check": "Konnect Base URL reachable", "ok": False, "detail": str(e)[:200]})
+
+    return {"ok": all(c["ok"] for c in checks), "checks": checks}
 
 
 # --------------------------------------------------------------------------

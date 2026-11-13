@@ -29,7 +29,7 @@ from ..services.constants import (
 )
 
 MODULE = "ForceX FLEETO"
-MODIFIED = "2026-11-05 17:00:00.000000"   # bump when you change a spec, or migrate skips it
+MODIFIED = "2026-11-13 14:30:00.000000"   # bump when you change a spec, or migrate skips it
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -61,9 +61,12 @@ SVC_DESK = ["FX CRM", "FX Coordinator", "FX Technical Coordinator"]
 HEADS = ["FX Warranty Service Head", "FX Operations Head"]
 
 
-def perms(full=(), write=(), read=(), submittable=False):
+def perms(full=(), write=(), read=(), submittable=False, importers=()):
+    """importers: roles (already in full/write) that may also bulk-upload via Data Import.
+    The DocType needs allow_import=1 as well."""
     rows = [{"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1,
-             "submit": int(submittable), "cancel": int(submittable), "report": 1, "export": 1}]
+             "submit": int(submittable), "cancel": int(submittable), "report": 1, "export": 1,
+             "import": 1}]
     for r in full:
         rows.append({"role": r, "read": 1, "write": 1, "create": 1, "report": 1,
                      "submit": int(submittable), "cancel": int(submittable)})
@@ -71,6 +74,9 @@ def perms(full=(), write=(), read=(), submittable=False):
         rows.append({"role": r, "read": 1, "write": 1, "create": 1, "report": 1})
     for r in read:
         rows.append({"role": r, "read": 1, "report": 1})
+    for row in rows:
+        if row["role"] in importers:
+            row["import"] = 1
     return rows
 
 
@@ -89,6 +95,11 @@ SPECS["FX Warranty Policy"] = dict(istable=1, fields=[
 
 SPECS["FX Service Settings"] = dict(issingle=1, fields=[
     sec("Konnect"),
+    f("konnect_enabled", "Check", "Enable Konnect API", default="0",
+      description="When off, Konnect pushes to the inbound endpoint are refused. Excel uploads still work."),
+    f("konnect_inbound_endpoint", "Data", "Inbound Endpoint (give this to Konnect)", read_only=1,
+      default="/api/method/sas_forcex_fleeto.forcex_fleeto.api.konnect.push_invoices",
+      description="POST {\"rows\": [...]} with the API key/secret of an integration user that has an import role."),
     f("konnect_base_url", "Data", "Konnect API Base URL"),
     f("konnect_api_key", "Password", "Konnect API Key"),
     f("strict_vin", "Check", "Warn on non-VIN chassis numbers", default="1"),
@@ -105,6 +116,46 @@ SPECS["FX Service Settings"] = dict(issingle=1, fields=[
     f("detractor_alert_role", "Link", options="Role", default="FX Warranty Service Head"),
 ], permissions=perms(write=HEADS))
 
+META = "eval:doc.provider=='Meta WhatsApp Cloud API'"
+META_ON = "eval:doc.enabled && doc.provider=='Meta WhatsApp Cloud API'"  # required only when switched on
+SPECS["FX WhatsApp Settings"] = dict(issingle=1, track_changes=1, fields=[
+    sec("Connection"),
+    f("enabled", "Check", "Enable WhatsApp", default="0",
+      description="When off, messages are only logged as a comment on the record (safe for UAT)."),
+    f("provider", "Select", options="Meta WhatsApp Cloud API\nCustom Function\nLog Only", default="Meta WhatsApp Cloud API"),
+    f("default_country_code", "Data", default="91", description="Added to 10-digit mobiles, e.g. 91 for India"),
+    col(1),
+    f("last_test_status", "Small Text", "Last Test Result", read_only=1),
+    f("last_test_on", "Datetime", "Last Tested On", read_only=1),
+    sec("Meta WhatsApp Cloud API", depends_on=META,
+        description="From Meta Business Suite › WhatsApp Manager › API Setup. Use a permanent "
+                    "System User token, not the 24-hour test token."),
+    f("phone_number_id", "Data", "Phone Number ID", mandatory_depends_on=META_ON),
+    f("business_account_id", "Data", "WhatsApp Business Account ID"),
+    col(2),
+    f("access_token", "Password", "Access Token", length=1000, mandatory_depends_on=META_ON),
+    f("graph_api_version", "Data", "Graph API Version", default="v21.0"),
+    sec("Custom Function", depends_on="eval:doc.provider=='Custom Function'"),
+    f("custom_sender", "Data", "Sender Function",
+      mandatory_depends_on="eval:doc.enabled && doc.provider=='Custom Function'",
+      description="Dotted path of send(mobile, message) for Gupshup / Interakt / Twilio etc."),
+    sec("Message Templates", depends_on=META,
+        description="Business-started messages need a template approved in WhatsApp Manager. "
+                    "Leave a template blank to send plain text, which Meta delivers only within "
+                    "24 hours of the customer's last message."),
+    f("booking_template", "Data", "Technician Booking Alert Template",
+      description="Body values in order: {{1}} ticket, {{2}} date, {{3}} time slot, {{4}} customer, "
+                  "{{5}} customer mobile, {{6}} issue"),
+    f("booking_template_language", "Data", "Booking Template Language", default="en"),
+    col(3),
+    f("feedback_template", "Data", "Feedback Thank-you Template",
+      description="Body values in order: {{1}} customer name, {{2}} invoice number"),
+    f("feedback_template_language", "Data", "Feedback Template Language", default="en"),
+    sec("Send a Test"),
+    f("test_mobile", "Data", "Test Mobile Number", options="Phone",
+      description="Meta: sends the sample 'hello_world' template that every new WhatsApp account has."),
+], permissions=perms(write=HEADS))
+
 # ---------------------------------------------------------------- registry
 SPECS["FX Vehicle Component"] = dict(istable=1, fields=[
     f("component_type", "Select", options=opts(ComponentType.values()), reqd=1, in_list_view=1),
@@ -117,7 +168,7 @@ SPECS["FX Vehicle Component"] = dict(istable=1, fields=[
 ])
 
 SPECS["FX Vehicle Registry"] = dict(
-    autoname="field:chassis_no", title_field="customer_name",
+    autoname="field:chassis_no", title_field="customer_name", allow_import=1,
     search_fields="customer_name,mobile,konnect_invoice_no",
     fields=[
         f("chassis_no", "Data", reqd=1, unique=1, in_list_view=1),
@@ -143,7 +194,7 @@ SPECS["FX Vehicle Registry"] = dict(
         f("components", "Table", options="FX Vehicle Component"),
         f("import_warnings", "Small Text", read_only=1),
     ],
-    permissions=perms(write=HEADS, read=SVC_DESK + ["FX Business Partner", "FX Spare Store"]),
+    permissions=perms(write=HEADS, read=SVC_DESK + ["FX Business Partner", "FX Spare Store"], importers=HEADS),
 )
 
 SPECS["FX Konnect Import Log"] = dict(autoname="hash", fields=[
@@ -201,14 +252,14 @@ SPECS["FX Job Card"] = dict(autoname="hash", is_submittable=1, fields=[
 ], permissions=perms(full=["FX Technical Coordinator"] + HEADS, submittable=True))
 
 # ---------------------------------------------------------------- factory
-SPECS["FX Material Receipt"] = dict(autoname="hash", fields=[
+SPECS["FX Material Receipt"] = dict(autoname="hash", allow_import=1, fields=[
     f("receipt_date", "Date", reqd=1, default="Today", in_list_view=1),
     f("ticket", "Link", options="HD Ticket", description="May be tagged later (FRD note 2/3)", in_list_view=1),
     f("received_from", "Link", options="Customer"),
     f("component_type", "Select", options=opts(ComponentType.values()), reqd=1),
     f("serial_no", "Data", reqd=1, in_list_view=1),
     f("notes", "Small Text"),
-], permissions=perms(write=["FX Spare Store", "FX Coordinator"] + HEADS, read=SVC_DESK))
+], permissions=perms(write=["FX Spare Store", "FX Coordinator"] + HEADS, read=SVC_DESK, importers=HEADS))
 
 SPECS["FX Material Inspection"] = dict(
     autoname="naming_series:", is_submittable=1, track_changes=1,
@@ -235,7 +286,7 @@ SPECS["FX Material Inspection"] = dict(
     permissions=perms(full=HEADS, write=["FX Spare Store"], submittable=True),
 )
 
-SPECS["FX Supplier RMA"] = dict(autoname="naming_series:", track_changes=1, fields=[
+SPECS["FX Supplier RMA"] = dict(autoname="naming_series:", track_changes=1, allow_import=1, fields=[
     f("naming_series", "Select", options="RMA-SUP-.YYYY.-.###", default="RMA-SUP-.YYYY.-.###"),
     f("ticket", "Link", options="HD Ticket", reqd=1, in_list_view=1),
     f("supplier", "Link", options="Supplier", reqd=1, in_list_view=1),
@@ -251,7 +302,7 @@ SPECS["FX Supplier RMA"] = dict(autoname="naming_series:", track_changes=1, fiel
     f("auto_dealer_cn", "Check", "Auto-generate Dealer Credit Note", default="1"),
     f("dealer_credit", "Currency", read_only=1),
     f("margin_absorbed", "Currency", read_only=1),
-], permissions=perms(write=HEADS + ["FX Spare Store"], read=SVC_DESK))
+], permissions=perms(write=HEADS + ["FX Spare Store"], read=SVC_DESK, importers=HEADS))
 
 # ---------------------------------------------------------------- feedback
 SPECS["FX Feedback Question"] = dict(istable=1, fields=[

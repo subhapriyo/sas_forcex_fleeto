@@ -1,0 +1,204 @@
+{
+ "doctype": "DocType",
+ "name": "FX WhatsApp Settings",
+ "module": "ForceX FLEETO",
+ "custom": 0,
+ "engine": "InnoDB",
+ "modified": "2026-11-13 14:30:00.000000",
+ "owner": "Administrator",
+ "fields": [
+  {
+   "fieldname": "sec_connection",
+   "fieldtype": "Section Break",
+   "label": "Connection",
+   "idx": 1
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enable WhatsApp",
+   "default": "0",
+   "description": "When off, messages are only logged as a comment on the record (safe for UAT).",
+   "idx": 2
+  },
+  {
+   "fieldname": "provider",
+   "fieldtype": "Select",
+   "label": "Provider",
+   "options": "Meta WhatsApp Cloud API\nCustom Function\nLog Only",
+   "default": "Meta WhatsApp Cloud API",
+   "idx": 3
+  },
+  {
+   "fieldname": "default_country_code",
+   "fieldtype": "Data",
+   "label": "Default Country Code",
+   "default": "91",
+   "description": "Added to 10-digit mobiles, e.g. 91 for India",
+   "idx": 4
+  },
+  {
+   "fieldname": "col_1",
+   "fieldtype": "Column Break",
+   "label": "",
+   "idx": 5
+  },
+  {
+   "fieldname": "last_test_status",
+   "fieldtype": "Small Text",
+   "label": "Last Test Result",
+   "read_only": 1,
+   "idx": 6
+  },
+  {
+   "fieldname": "last_test_on",
+   "fieldtype": "Datetime",
+   "label": "Last Tested On",
+   "read_only": 1,
+   "idx": 7
+  },
+  {
+   "fieldname": "sec_meta_whatsapp_cloud_api",
+   "fieldtype": "Section Break",
+   "label": "Meta WhatsApp Cloud API",
+   "depends_on": "eval:doc.provider=='Meta WhatsApp Cloud API'",
+   "description": "From Meta Business Suite › WhatsApp Manager › API Setup. Use a permanent System User token, not the 24-hour test token.",
+   "idx": 8
+  },
+  {
+   "fieldname": "phone_number_id",
+   "fieldtype": "Data",
+   "label": "Phone Number ID",
+   "mandatory_depends_on": "eval:doc.enabled && doc.provider=='Meta WhatsApp Cloud API'",
+   "idx": 9
+  },
+  {
+   "fieldname": "business_account_id",
+   "fieldtype": "Data",
+   "label": "WhatsApp Business Account ID",
+   "idx": 10
+  },
+  {
+   "fieldname": "col_2",
+   "fieldtype": "Column Break",
+   "label": "",
+   "idx": 11
+  },
+  {
+   "fieldname": "access_token",
+   "fieldtype": "Password",
+   "label": "Access Token",
+   "length": 1000,
+   "mandatory_depends_on": "eval:doc.enabled && doc.provider=='Meta WhatsApp Cloud API'",
+   "idx": 12
+  },
+  {
+   "fieldname": "graph_api_version",
+   "fieldtype": "Data",
+   "label": "Graph API Version",
+   "default": "v21.0",
+   "idx": 13
+  },
+  {
+   "fieldname": "sec_custom_function",
+   "fieldtype": "Section Break",
+   "label": "Custom Function",
+   "depends_on": "eval:doc.provider=='Custom Function'",
+   "idx": 14
+  },
+  {
+   "fieldname": "custom_sender",
+   "fieldtype": "Data",
+   "label": "Sender Function",
+   "mandatory_depends_on": "eval:doc.enabled && doc.provider=='Custom Function'",
+   "description": "Dotted path of send(mobile, message) for Gupshup / Interakt / Twilio etc.",
+   "idx": 15
+  },
+  {
+   "fieldname": "sec_message_templates",
+   "fieldtype": "Section Break",
+   "label": "Message Templates",
+   "depends_on": "eval:doc.provider=='Meta WhatsApp Cloud API'",
+   "description": "Business-started messages need a template approved in WhatsApp Manager. Leave a template blank to send plain text, which Meta delivers only within 24 hours of the customer's last message.",
+   "idx": 16
+  },
+  {
+   "fieldname": "booking_template",
+   "fieldtype": "Data",
+   "label": "Technician Booking Alert Template",
+   "description": "Body values in order: {{1}} ticket, {{2}} date, {{3}} time slot, {{4}} customer, {{5}} customer mobile, {{6}} issue",
+   "idx": 17
+  },
+  {
+   "fieldname": "booking_template_language",
+   "fieldtype": "Data",
+   "label": "Booking Template Language",
+   "default": "en",
+   "idx": 18
+  },
+  {
+   "fieldname": "col_3",
+   "fieldtype": "Column Break",
+   "label": "",
+   "idx": 19
+  },
+  {
+   "fieldname": "feedback_template",
+   "fieldtype": "Data",
+   "label": "Feedback Thank-you Template",
+   "description": "Body values in order: {{1}} customer name, {{2}} invoice number",
+   "idx": 20
+  },
+  {
+   "fieldname": "feedback_template_language",
+   "fieldtype": "Data",
+   "label": "Feedback Template Language",
+   "default": "en",
+   "idx": 21
+  },
+  {
+   "fieldname": "sec_send_a_test",
+   "fieldtype": "Section Break",
+   "label": "Send a Test",
+   "idx": 22
+  },
+  {
+   "fieldname": "test_mobile",
+   "fieldtype": "Data",
+   "label": "Test Mobile Number",
+   "options": "Phone",
+   "description": "Meta: sends the sample 'hello_world' template that every new WhatsApp account has.",
+   "idx": 23
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 0,
+   "cancel": 0,
+   "report": 1,
+   "export": 1,
+   "import": 1
+  },
+  {
+   "role": "FX Warranty Service Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  },
+  {
+   "role": "FX Operations Head",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1
+  }
+ ],
+ "issingle": 1,
+ "track_changes": 1
+}

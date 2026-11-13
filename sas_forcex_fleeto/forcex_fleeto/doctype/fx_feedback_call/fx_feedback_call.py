@@ -69,7 +69,9 @@ class FXFeedbackCall(Document):
                 "customer_name": self.customer_name, "invoice_no": self.invoice_no})
         # whatsapp_sent is set by the background job only when the provider accepts the
         # message, so the flag never claims a message that is merely queued.
-        whatsapp.enqueue_send(self.whatsapp or self.mobile, msg, self.doctype, self.name)
+        # Template body order (FX WhatsApp Settings): customer name, invoice number
+        whatsapp.enqueue_send(self.whatsapp or self.mobile, msg, self.doctype, self.name,
+                              event="feedback", params=[self.customer_name, self.invoice_no])
 
         if self.is_detractor:
             role = settings().detractor_alert_role or "FX Warranty Service Head"

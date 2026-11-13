@@ -1,0 +1,20 @@
+{
+ "doctype": "Number Card",
+ "name": "FX Open Service Tickets",
+ "label": "Open Service Tickets",
+ "type": "Document Type",
+ "document_type": "HD Ticket",
+ "function": "Count",
+ "filters_json": "[[\"HD Ticket\", \"ticket_type\", \"=\", \"Service\"], [\"HD Ticket\", \"fx_stage\", \"not in\", [\"Closed\", \"Claim Rejected\"]]]",
+ "is_public": 1,
+ "is_standard": 1,
+ "module": "ForceX FLEETO",
+ "color": "Blue",
+ "show_percentage_stats": 0,
+ "creation": "2026-11-13 14:00:00.000000",
+ "modified": "2026-11-13 14:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "docstatus": 0,
+ "idx": 0
+}

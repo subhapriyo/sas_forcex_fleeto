@@ -10,6 +10,19 @@ app_license = "mit"
 
 required_apps = ["erpnext", "sas_forcex"]
 
+# Tile on the ForceX Apps screen (/desk). The landing page is the
+# "ForceX FLEETO" Workspace in forcex_fleeto/workspace/.
+add_to_apps_screen = [
+	{
+		"name": "sas_forcex_fleeto",
+		"logo": "/assets/sas_forcex_fleeto/images/fleeto-logo.svg",
+		"title": "ForceX FLEETO",
+		"route": "/desk/forcex-fleeto",
+		"has_permission": "sas_forcex_fleeto.forcex_fleeto.permissions.has_app_permission",
+		"sequence_id": 20,
+	}
+]
+
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
 # 	{

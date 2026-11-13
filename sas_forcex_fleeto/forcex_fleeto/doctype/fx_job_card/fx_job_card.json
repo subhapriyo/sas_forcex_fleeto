@@ -4,7 +4,7 @@
  "module": "ForceX FLEETO",
  "custom": 0,
  "engine": "InnoDB",
- "modified": "2026-11-05 17:00:00.000000",
+ "modified": "2026-11-13 14:30:00.000000",
  "owner": "Administrator",
  "fields": [
   {
@@ -141,7 +141,8 @@
    "submit": 1,
    "cancel": 1,
    "report": 1,
-   "export": 1
+   "export": 1,
+   "import": 1
   },
   {
    "role": "FX Technical Coordinator",

@@ -161,6 +161,10 @@ ROLES = [
     "FX Warranty Service Head",
     "FX Operations Head",
     "FX Business Partner",
+    # Business Partner tiers (added 13-Nov-2026); FX Business Partner stays for common access
+    "FX C&F",
+    "FX Distributor",
+    "FX Dealer",
     "FX Sales Team",
     "FX ASM",
     "FX RSM",
